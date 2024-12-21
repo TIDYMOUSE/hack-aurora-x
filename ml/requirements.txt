@@ -3,6 +3,6 @@ langchain-core
 langgraph
 google-ai-generativelanguage
 langchain-google-genai
-fastapi
+fastapi[standard]
 fastapi-sessions
 

@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 interface SpeechContextProps {
-  recognizedText: string;
+  recognizedText: React.MutableRefObject<string>;
   isListening: boolean;
   startListening: (onSpeechEnd?: () => Promise<void>) => void;
   stopListening: () => void;
@@ -18,10 +18,10 @@ interface SpeechContextProps {
 const SpeechContext = createContext<SpeechContextProps | undefined>(undefined);
 
 export const SpeechProvider = ({ children }: { children: ReactNode }) => {
-  const [recognizedText, setRecognizedText] = useState("");
+  const recognizedText = useRef<string>("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
+  let result = "";
   const startListening = async (onSpeechEnd?: () => Promise<void>) => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
@@ -46,8 +46,8 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.resultIndex][0].transcript;
-      setRecognizedText((prev) => `${prev} ${transcript}`);
-      console.log("Recognized Text:", transcript);
+      recognizedText.current = transcript;
+      console.log("Recognized Text:", recognizedText.current);
     };
 
     recognition.onspeechend = () => {
@@ -65,6 +65,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
           console.error("Error in onSpeechEnd callback:", error);
         }
       }
+      return recognizedText;
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -102,6 +103,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
 
     speechSynthesis.speak(utterance);
   };
+
 
   return (
     <SpeechContext.Provider
