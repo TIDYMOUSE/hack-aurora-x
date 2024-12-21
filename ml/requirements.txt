@@ -1,0 +1,8 @@
+langchain
+langchain-core
+langgraph
+google-ai-generativelanguage
+langchain-google-genai
+fastapi
+fastapi-sessions
+
