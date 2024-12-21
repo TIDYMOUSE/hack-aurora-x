@@ -10,7 +10,7 @@ import React, {
 interface SpeechContextProps {
   recognizedText: string;
   isListening: boolean;
-  startListening: (onSpeechEnd?: () => void) => void;
+  startListening: (onSpeechEnd?: () => Promise<void>) => void;
   stopListening: () => void;
   speak: (text: string, onComplete?: () => void) => void;
 }
@@ -22,7 +22,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const startListening = (onSpeechEnd?: () => void) => {
+  const startListening = async (onSpeechEnd?: () => Promise<void>) => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
     ) {
@@ -55,10 +55,16 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
       recognition.stop();
     };
 
-    recognition.onend = () => {
+    recognition.onend = async () => {
       console.log("Speech Recognition Session Ended");
       setIsListening(false);
-      if (onSpeechEnd) onSpeechEnd(); // Call the callback after ending
+      if (onSpeechEnd) {
+        try {
+          await onSpeechEnd(); // Await the async function
+        } catch (error) {
+          console.error("Error in onSpeechEnd callback:", error);
+        }
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
