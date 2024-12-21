@@ -1,43 +1,48 @@
-import { Tooltip, useTheme } from '@mui/material';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import { useTranslation } from 'react-i18next';
-import DataCard from '../../components/DataCard.tsx';
+import { Tooltip, useTheme } from "@mui/material";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import { useTranslation } from "react-i18next";
+import DataCard from "../../components/DataCard.tsx";
 import MonthlyOverviewChart, {
   ChartDataItem as MonthlyOverviewChartDataItem,
-} from './MonthlyOverviewChart.tsx';
-import { PanelTitle } from '../../theme/styled.ts';
-import DashboardPieChart, { ChartDataItem } from './DashboardPieChart.tsx';
+} from "./MonthlyOverviewChart.tsx";
+import { PanelTitle } from "../../theme/styled.ts";
+import DashboardPieChart, { ChartDataItem } from "./DashboardPieChart.tsx";
 import MonthByMonthBalanceChart, {
   MonthByMonthChartDataItem,
-} from './MonthByMonthBalanceChart.tsx';
+} from "./MonthByMonthBalanceChart.tsx";
 import {
   useGetMonthByMonthData,
   useGetMonthExpensesIncomeDistributionData,
-} from '../../services/stats/statHooks.ts';
-import { memo, useEffect, useState } from 'react';
-import { addLeadingZero } from '../../utils/textUtils.ts';
+} from "../../services/stats/statHooks.ts";
+import { memo, useEffect, useState } from "react";
+import { addLeadingZero } from "../../utils/textUtils.ts";
 
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
+} from "../../providers/SnackbarProvider.tsx";
 import {
   MonthByMonthDataItem,
   MonthExpensesDistributionDataResponse,
-} from '../../services/stats/statServices.ts';
-import { DatePicker } from '@mui/x-date-pickers';
-import dayjs, { Dayjs } from 'dayjs';
-import Typography from '@mui/material/Typography/Typography';
-import { AccessTime } from '@mui/icons-material';
-import Stack from '@mui/material/Stack/Stack';
+} from "../../services/stats/statServices.ts";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
+import Typography from "@mui/material/Typography/Typography";
+import { AccessTime } from "@mui/icons-material";
+import Stack from "@mui/material/Stack/Stack";
 import {
   useGetDebtAccounts,
   useGetInvestingAccounts,
-} from '../../services/user/userHooks.ts';
-import { Account } from '../../services/auth/authServices.ts';
+} from "../../services/user/userHooks.ts";
+import { Account } from "../../services/auth/authServices.ts";
+import { useSpeech } from "../../providers/SpeechProvider.tsx";
 
 const Dashboard = () => {
+  const speech = useSpeech();
+  // speech.speak("hello world this is advait yadav");
+  // speech.startListening();
+
   const MONTH_BY_MONTH_MAX_MONTHS = 6;
   const theme = useTheme();
   const loader = useLoading();
@@ -50,7 +55,7 @@ const Dashboard = () => {
   const monthIncomeExpensesDistributionData =
     useGetMonthExpensesIncomeDistributionData(monthYear.month, monthYear.year);
   const [expensesChartData, setExpensesChartData] = useState<ChartDataItem[]>(
-    [],
+    []
   );
   const [incomeChartData, setIncomeChartData] = useState<ChartDataItem[]>([]);
   const [monthlyOverviewChartData, setMonthlyOverviewChartData] = useState<
@@ -59,7 +64,7 @@ const Dashboard = () => {
   const [monthByMonthChartData, setMonthByMonthChartData] = useState<
     MonthByMonthChartDataItem[]
   >([]);
-  const [lastUpdatedTimestamp, setLastUpdatedTimestamp] = useState<string>('');
+  const [lastUpdatedTimestamp, setLastUpdatedTimestamp] = useState<string>("");
 
   const debtAccounts = useGetDebtAccounts();
   const investAccounts = useGetInvestingAccounts();
@@ -89,8 +94,8 @@ const Dashboard = () => {
       getMonthByMonthData.isError
     ) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [
@@ -102,7 +107,7 @@ const Dashboard = () => {
     // Transform data & update state when fetch is successful
     if (monthIncomeExpensesDistributionData.isSuccess) {
       setupLastUpdatedTimestamp(
-        monthIncomeExpensesDistributionData.data.last_update_timestamp,
+        monthIncomeExpensesDistributionData.data.last_update_timestamp
       );
       setupMonthlyOverviewChart(monthIncomeExpensesDistributionData.data);
       setupIncomeDistributionChart(monthIncomeExpensesDistributionData.data);
@@ -111,7 +116,7 @@ const Dashboard = () => {
   }, [monthIncomeExpensesDistributionData.data]);
 
   function transformBudgetData(
-    data: MonthByMonthDataItem[],
+    data: MonthByMonthDataItem[]
   ): MonthByMonthChartDataItem[] {
     /**
      * If it contains budget for current month, get data for current & previous 4 months.
@@ -119,9 +124,9 @@ const Dashboard = () => {
      */
     const transformedData: MonthByMonthChartDataItem[] = [];
     for (let i = 0; i < MONTH_BY_MONTH_MAX_MONTHS; i++) {
-      const currentDate = dayjs().subtract(i, 'month');
+      const currentDate = dayjs().subtract(i, "month");
       const budget = data.find(
-        (budget) => budget.month === currentDate.month() + 1,
+        (budget) => budget.month === currentDate.month() + 1
       );
       const balance = budget ? budget.balance_value : 0;
       transformedData[i] = {
@@ -154,39 +159,39 @@ const Dashboard = () => {
         ?.sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance))
         ?.slice(0, 5)
         ?.map((acc) => ({
-          id: acc.name ?? '',
-          color: acc.color_gradient ?? '',
+          id: acc.name ?? "",
+          color: acc.color_gradient ?? "",
           value: Math.abs(acc.balance ?? 0),
         })) ?? []
     );
   };
 
   const setupIncomeDistributionChart = (
-    data: MonthExpensesDistributionDataResponse,
+    data: MonthExpensesDistributionDataResponse
   ) => {
     setIncomeChartData(
       data.categories
         ?.filter(
           (category) =>
             category.current_amount_credit != 0 &&
-            category.exclude_from_budgets != 1,
+            category.exclude_from_budgets != 1
         )
         ?.sort(
           (a, b) =>
             Math.abs(b.current_amount_credit ?? 0) -
-            Math.abs(a.current_amount_credit ?? 0),
+            Math.abs(a.current_amount_credit ?? 0)
         )
         ?.slice(0, 5)
         ?.map((category) => ({
-          id: category.name ?? '',
-          color: category.color_gradient ?? '',
+          id: category.name ?? "",
+          color: category.color_gradient ?? "",
           value: category.current_amount_credit ?? 0,
-        })) ?? [],
+        })) ?? []
     );
   };
 
   const setupExpenseDistributionChart = (
-    data: MonthExpensesDistributionDataResponse,
+    data: MonthExpensesDistributionDataResponse
   ) => {
     setExpensesChartData(
       data.categories
@@ -194,24 +199,24 @@ const Dashboard = () => {
         ?.sort(
           (a, b) =>
             Math.abs(b.current_amount_debit ?? 0) -
-            Math.abs(a.current_amount_debit ?? 0),
+            Math.abs(a.current_amount_debit ?? 0)
         )
         ?.slice(0, 5)
         ?.map((category) => ({
-          id: category.name ?? '',
-          color: category.color_gradient ?? '',
+          id: category.name ?? "",
+          color: category.color_gradient ?? "",
           value: category.current_amount_debit ?? 0,
-        })) ?? [],
+        })) ?? []
     );
   };
 
   const setupLastUpdatedTimestamp = (timestamp: number | undefined) => {
-    if (!timestamp) return '-';
-    setLastUpdatedTimestamp(dayjs.unix(timestamp).format('YYYY-MM-DD'));
+    if (!timestamp) return "-";
+    setLastUpdatedTimestamp(dayjs.unix(timestamp).format("YYYY-MM-DD"));
   };
 
   const setupMonthlyOverviewChart = (
-    data: MonthExpensesDistributionDataResponse,
+    data: MonthExpensesDistributionDataResponse
   ) => {
     let totalExpensesRealAmount = 0;
     let totalExpensesBudgetedAmount = 0;
@@ -220,23 +225,23 @@ const Dashboard = () => {
       if (category.exclude_from_budgets !== 1) {
         totalExpensesRealAmount += category.current_amount_debit ?? 0;
         totalExpensesBudgetedAmount += parseFloat(
-          category.planned_amount_debit ?? '0',
+          category.planned_amount_debit ?? "0"
         );
       }
     });
 
     setMonthlyOverviewChartData([
       {
-        id: t('dashboard.current'),
-        type: '0',
+        id: t("dashboard.current"),
+        type: "0",
         value: totalExpensesRealAmount,
       },
       {
-        id: t('dashboard.remaining'),
-        type: '1',
+        id: t("dashboard.remaining"),
+        type: "1",
         value: Math.max(
           totalExpensesBudgetedAmount - totalExpensesRealAmount,
-          0,
+          0
         ),
       },
     ]);
@@ -251,8 +256,8 @@ const Dashboard = () => {
     <Grid container spacing={2} sx={{ p: theme.spacing(2) }}>
       <Grid xs={12} md={3}>
         <DatePicker
-          label={t('stats.month')}
-          views={['month', 'year']}
+          label={t("stats.month")}
+          views={["month", "year"]}
           onChange={(newDate) => handleMonthChange(newDate)}
           value={dayjs(`${monthYear.year}-${addLeadingZero(monthYear.month)}`)}
         />
@@ -263,12 +268,12 @@ const Dashboard = () => {
         direction="column"
         sx={{
           // Hide on screens smaller than 'md'
-          display: { xs: 'none', sm: 'none', md: 'flex' },
-          justifyContent: 'flex-end',
-          alignItems: 'center',
+          display: { xs: "none", sm: "none", md: "flex" },
+          justifyContent: "flex-end",
+          alignItems: "center",
         }}
       >
-        <Tooltip title={t('dashboard.lastUpdate')}>
+        <Tooltip title={t("dashboard.lastUpdate")}>
           <Stack direction="row" alignItems="center" gap={0.5}>
             <AccessTime
               fontSize="inherit"
@@ -282,37 +287,37 @@ const Dashboard = () => {
       </Grid>
       <Grid xs={12} md={4}>
         <DataCard>
-          <PanelTitle>{t('dashboard.monthlyOverview')}</PanelTitle>
+          <PanelTitle>{t("dashboard.monthlyOverview")}</PanelTitle>
           <MonthlyOverviewChart data={monthlyOverviewChartData} />
         </DataCard>
       </Grid>
       <Grid xs={12} md={8}>
         <DataCard>
-          <PanelTitle>{t('dashboard.monthlySavings')}</PanelTitle>
+          <PanelTitle>{t("dashboard.monthlySavings")}</PanelTitle>
           <MonthByMonthBalanceChart data={monthByMonthChartData} />
         </DataCard>
       </Grid>
       <Grid xs={12} lg={6}>
         <DataCard>
-          <PanelTitle>{t('dashboard.incomeDistribution')}</PanelTitle>
+          <PanelTitle>{t("dashboard.incomeDistribution")}</PanelTitle>
           <DashboardPieChart data={incomeChartData} />
         </DataCard>
       </Grid>
       <Grid xs={12} lg={6}>
         <DataCard>
-          <PanelTitle>{t('dashboard.expenseDistribution')}</PanelTitle>
+          <PanelTitle>{t("dashboard.expenseDistribution")}</PanelTitle>
           <DashboardPieChart data={expensesChartData} />
         </DataCard>
       </Grid>
       <Grid xs={12} lg={6}>
         <DataCard>
-          <PanelTitle>{t('common.investmentPortfolio')}</PanelTitle>
+          <PanelTitle>{t("common.investmentPortfolio")}</PanelTitle>
           <DashboardPieChart data={investChartData} />
         </DataCard>
       </Grid>
       <Grid xs={12} lg={6}>
         <DataCard>
-          <PanelTitle>{t('common.debtDistribution')}</PanelTitle>
+          <PanelTitle>{t("common.debtDistribution")}</PanelTitle>
           <DashboardPieChart data={debtChartData} />
         </DataCard>
       </Grid>

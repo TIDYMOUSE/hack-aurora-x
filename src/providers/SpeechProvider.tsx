@@ -1,23 +1,32 @@
-import React, { createContext, useContext, useState, useRef, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface SpeechContextProps {
   recognizedText: string;
   isListening: boolean;
-  startListening: () => void;
+  startListening: (onSpeechEnd?: () => void) => void;
   stopListening: () => void;
-  speak: (text: string) => void;
+  speak: (text: string, onComplete?: () => void) => void;
 }
 
 const SpeechContext = createContext<SpeechContextProps | undefined>(undefined);
 
-export const SpeechProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [recognizedText, setRecognizedText] = useState<string>('');
-  const [isListening, setIsListening] = useState<boolean>(false);
+export const SpeechProvider = ({ children }: { children: ReactNode }) => {
+  const [recognizedText, setRecognizedText] = useState("");
+  const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert('Speech Recognition API is not supported in your browser.');
+  const startListening = (onSpeechEnd?: () => void) => {
+    if (
+      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+    ) {
+      alert("Speech Recognition API is not supported in your browser.");
       return;
     }
 
@@ -25,29 +34,35 @@ export const SpeechProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition();
-
-    recognition.lang = 'en-US';
+    recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.continuous = true;
+    recognition.continuous = false; // Stops after one result
 
     recognition.onstart = () => {
       setIsListening(true);
-      console.log('Speech Recognition Started');
+      console.log("Speech Recognition Started");
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.resultIndex][0].transcript;
       setRecognizedText((prev) => `${prev} ${transcript}`);
+      console.log("Recognized Text:", transcript);
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech Recognition Error:', event.error);
-      setIsListening(false);
+    recognition.onspeechend = () => {
+      console.log("Speech detected has ended.");
+      recognition.stop();
     };
 
     recognition.onend = () => {
-      console.log('Speech Recognition Ended');
+      console.log("Speech Recognition Session Ended");
+      setIsListening(false);
+      if (onSpeechEnd) onSpeechEnd(); // Call the callback after ending
+    };
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error("Speech Recognition Error:", event.error);
       setIsListening(false);
     };
 
@@ -58,23 +73,26 @@ export const SpeechProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const stopListening = () => {
     recognitionRef.current?.stop();
     setIsListening(false);
-    console.log('Speech Recognition Stopped');
+    console.log("Speech Recognition Stopped");
   };
 
-  const speak = (text: string) => {
-    if (!('speechSynthesis' in window)) {
-      alert('Speech Synthesis API is not supported in your browser.');
+  const speak = (text: string, onComplete?: () => void) => {
+    if (!("speechSynthesis" in window)) {
+      alert("Speech Synthesis API is not supported in your browser.");
       return;
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
+    utterance.lang = "en-US";
     utterance.pitch = 1;
     utterance.rate = 1;
     utterance.volume = 1;
 
-    utterance.onstart = () => console.log('Speech synthesis started.');
-    utterance.onend = () => console.log('Speech synthesis ended.');
+    utterance.onstart = () => console.log("Speech synthesis started.");
+    utterance.onend = () => {
+      console.log("Speech synthesis ended.");
+      if (onComplete) onComplete();
+    };
 
     speechSynthesis.speak(utterance);
   };
@@ -97,7 +115,7 @@ export const SpeechProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 export const useSpeech = (): SpeechContextProps => {
   const context = useContext(SpeechContext);
   if (!context) {
-    throw new Error('useSpeech must be used within a SpeechProvider');
+    throw new Error("useSpeech must be used within a SpeechProvider");
   }
   return context;
 };
