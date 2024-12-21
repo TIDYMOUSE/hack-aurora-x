@@ -1,26 +1,28 @@
-import { Formik, Form } from 'formik';
-import * as yup from 'yup';
-import { useTheme } from '@mui/material';
-import Box from '@mui/material/Box/Box';
-import Button from '@mui/material/Button/Button';
-import Container from '@mui/material/Container/Container';
-import TextField from '@mui/material/TextField/TextField';
-import { useNavigate } from 'react-router-dom';
+import { Formik, Form } from "formik";
+import * as yup from "yup";
+import { useTheme } from "@mui/material";
+import Box from "@mui/material/Box/Box";
+import Button from "@mui/material/Button/Button";
+import Container from "@mui/material/Container/Container";
+import TextField from "@mui/material/TextField/TextField";
+import { useNavigate } from "react-router-dom";
 import {
   useAuthStatus,
   useLogin,
   useRegister,
-} from '../../services/auth/authHooks.ts';
-import { ROUTE_DASHBOARD } from '../../providers/RoutesProvider.tsx';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+} from "../../services/auth/authHooks.ts";
+import { ROUTE_DASHBOARD } from "../../providers/RoutesProvider.tsx";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
-import { AxiosError } from 'axios';
-
+} from "../../providers/SnackbarProvider.tsx";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
+import { AxiosError } from "axios";
+import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { app, auth } from "../../firebase.tsx";
 const Login = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -30,28 +32,59 @@ const Login = () => {
   const registerRequest = useRegister();
   const { t } = useTranslation();
   const snackbar = useSnackbar();
+  const speech = useSpeech();
+  speech.speak("Enter your credentials");
+  useEffect(() => {
+    speech.startListening();
+  }, []);
+  setTimeout(() => {
+    speech.stopListening();
+    console.log(speech.recognizedText);
+  }, 5000);
 
   const [isLogin, setIsLogin] = useState(true);
 
   async function handleSubmit(
     username: string,
     password: string,
-    email?: string,
+    email?: string
+    // speech?: { recognizedText: string }
   ) {
-    if (isLogin) loginRequest.mutate({ username, password });
-    else registerRequest.mutate({ username, password, email: email ?? '' });
+    // Generate email and password if not provided
+    const generatedEmail = email ?? `${speech.recognizedText ?? ""}@gmail.com`;
+    const generatedPassword = speech.recognizedText ?? password;
+
+    // Register user function
+    const registerUser = async (
+      email: string,
+      password: string
+    ): Promise<void> => {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        console.log("User signed up:", userCredential.user);
+      } catch (error: any) {
+        console.error("Error during registration:", error.message);
+      }
+    };
+
+    // Call registerUser with generated credentials
+    await registerUser(generatedEmail, generatedPassword);
   }
 
   const formValidationSchema = yup.object().shape({
-    username: yup.string().min(3).required(t('login.fillAllFields')),
-    password: yup.string().required(t('login.fillAllFields')),
+    username: yup.string().min(3).required(t("login.fillAllFields")),
+    password: yup.string().required(t("login.fillAllFields")),
     showEmail: yup.boolean(),
     email: yup
       .string()
       .email()
-      .when('showEmail', (showEmail, schema) => {
+      .when("showEmail", (showEmail, schema) => {
         if (showEmail[0] == true)
-          return schema.required(t('login.fillAllFields'));
+          return schema.required(t("login.fillAllFields"));
         return schema;
       }),
   });
@@ -61,8 +94,8 @@ const Login = () => {
       navigate(ROUTE_DASHBOARD);
     } else if (loginRequest.isError) {
       snackbar.showSnackbar(
-        t('login.wrongCredentialsError'),
-        AlertSeverity.ERROR,
+        t("login.wrongCredentialsError"),
+        AlertSeverity.ERROR
       );
     }
   }, [loginRequest.isSuccess, loginRequest.isError]);
@@ -70,21 +103,21 @@ const Login = () => {
   useEffect(() => {
     if (registerRequest.isSuccess) {
       snackbar.showSnackbar(
-        t('login.userSuccessfullyAdded'),
-        AlertSeverity.SUCCESS,
+        t("login.userSuccessfullyAdded"),
+        AlertSeverity.SUCCESS
       );
       setIsLogin(true);
     } else if (registerRequest.isError) {
       const error = registerRequest.error as AxiosError;
       if (error?.response?.status === 401) {
         snackbar.showSnackbar(
-          t('login.addUserDisabledError'), // Add this to your translations
-          AlertSeverity.ERROR,
+          t("login.addUserDisabledError"), // Add this to your translations
+          AlertSeverity.ERROR
         );
       } else {
         snackbar.showSnackbar(
-          t('common.somethingWentWrongTryAgain'),
-          AlertSeverity.ERROR,
+          t("common.somethingWentWrongTryAgain"),
+          AlertSeverity.ERROR
         );
       }
     }
@@ -118,18 +151,18 @@ const Login = () => {
         >
           <img
             src={
-              theme.palette.mode === 'dark'
-                ? '/res/logo_white_font_transparent_bg.png'
-                : '/res/logo_transparent_bg_v2.png'
+              theme.palette.mode === "dark"
+                ? "/res/logo_white_font_transparent_bg.png"
+                : "/res/logo_transparent_bg_v2.png"
             }
             width="60%"
             style={{ marginBottom: 20 }}
           />
           <Formik
             initialValues={{
-              username: '',
-              password: '',
-              email: '',
+              username: "",
+              password: "",
+              email: "",
               showEmail: !isLogin, // Dynamically set based on isLogin
             }}
             validationSchema={formValidationSchema}
@@ -188,9 +221,9 @@ const Login = () => {
                     type="submit"
                     color="primary"
                     fullWidth
-                    style={{ marginTop: '16px' }}
+                    style={{ marginTop: "16px" }}
                   >
-                    {t(isLogin ? 'login.signIn' : 'login.signUp')}
+                    {t(isLogin ? "login.signIn" : "login.signUp")}
                   </Button>
                   <Button
                     variant="outlined"
@@ -200,11 +233,11 @@ const Login = () => {
                       props.values.showEmail = !props.values.showEmail;
                       setIsLogin(!isLogin);
                     }}
-                    style={{ marginTop: '16px' }}
+                    style={{ marginTop: "16px" }}
                   >
                     {isLogin
-                      ? t('login.signUp')
-                      : t('login.alreadyRegisteredQuestion')}
+                      ? t("login.signUp")
+                      : t("login.alreadyRegisteredQuestion")}
                   </Button>
                 </Form>
               );
