@@ -4,15 +4,18 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import MyFinThemeProvider from "./providers/MyFinThemeProvider.tsx";
 import RoutesProvider from "./providers/RoutesProvider.tsx";
 import "./i18n.ts"
+import {SpeechProvider} from "./providers/SpeechProvider.tsx";
 
 function App() {
     return (
-        <MyFinThemeProvider>
-            <QueryClientProvider client={queryClient}>
-                <RoutesProvider />
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </MyFinThemeProvider>
+	<SpeechProvider>
+		<MyFinThemeProvider>
+		    <QueryClientProvider client={queryClient}>
+			<RoutesProvider />
+			<ReactQueryDevtools initialIsOpen={false} />
+		    </QueryClientProvider>
+		</MyFinThemeProvider>
+	</SpeechProvider>
     )
 }
 
