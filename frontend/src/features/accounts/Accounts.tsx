@@ -18,6 +18,7 @@ import {
   Account,
   AccountStatus,
   AccountType,
+<<<<<<< Updated upstream
 } from "../../services/auth/authServices.ts";
 import { GridColDef } from "@mui/x-data-grid";
 import { formatStringAsCurrency } from "../../utils/textUtils.ts";
@@ -37,6 +38,27 @@ import MyFinStaticTable from "../../components/MyFinStaticTable.tsx";
 import Typography from "@mui/material/Typography/Typography";
 import { useNavigate } from "react-router-dom";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+=======
+} from '../../services/auth/authServices.ts';
+import { GridColDef } from '@mui/x-data-grid';
+import { formatStringAsCurrency } from '../../utils/textUtils.ts';
+import IconButton from '@mui/material/IconButton';
+import { AddCircleOutline, Delete, Edit, Search } from '@mui/icons-material';
+import Stack from '@mui/material/Stack/Stack';
+import { cssGradients } from '../../utils/gradientUtils.ts';
+import Chip from '@mui/material/Chip/Chip';
+import Button from '@mui/material/Button/Button';
+import { ColorGradient } from '../../consts';
+import GenericConfirmationDialog from '../../components/GenericConfirmationDialog.tsx';
+import AddEditAccountDialog from './AddEditAccountDialog.tsx';
+import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
+import TextField from '@mui/material/TextField/TextField';
+import { debounce } from 'lodash';
+import MyFinStaticTable from '../../components/MyFinStaticTable.tsx';
+import Typography from '@mui/material/Typography/Typography';
+import { useNavigate } from 'react-router-dom';
+import { useSpeech } from '../../providers/SpeechProvider.tsx';
+>>>>>>> Stashed changes
 
 const Accounts = () => {
   const theme = useTheme();
@@ -56,7 +78,7 @@ const Accounts = () => {
   );
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isAddEditAccountDialogOpen, setAddEditDialogOpen] = useState(false);
-
+  window.setAddEditDialogOpen = setAddEditDialogOpen
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
   window.debouncedSearchQuery = debouncedSearchQuery;
@@ -272,6 +294,7 @@ const Accounts = () => {
     [debouncedSearchQuery]
   );
 
+<<<<<<< Updated upstream
   const navigate = useNavigate();
   const { startListening, recognizedText } = useSpeech();
 
@@ -322,6 +345,117 @@ const Accounts = () => {
             onPositiveClick={() => setAddEditDialogOpen(false)}
             onNegativeClick={() => setAddEditDialogOpen(false)}
             account={actionableAccount}
+=======
+  const { recognizedText, isListening, startListening, stopListening, speak } = useSpeech();
+  const navigate = useNavigate()
+  return (
+
+<div onMouseDown={(ev) => {
+            if (ev.button == 1) {
+                ev.preventDefault(); 
+                startListening(async () => {
+                    console.log(recognizedText.current);
+                    fetch("http://localhost:8000/api/talk", {
+                        method: "POST", // Specify GET method
+                        headers: {
+                          "Content-Type": "application/json", // Optional, for JSON payload
+                        },
+                        body: JSON.stringify({ "message": recognizedText.current}), // Include a body (not typical for GET)
+                      }).then(async (res)=> {
+                        // console.log(res);
+                        // console.log(await res.json());
+                        // let data = await res.json();
+                        // console.log(data);
+            // let func_name = data.command.substring(4);
+            //             if(data.command.substring(0,3) == "Nav") {
+            //   navigate("/" + func_name.toLowerCase())
+            // }
+            // // else{
+              window["setAddEditDialogOpen"](true);
+            // }
+                        // console.log(func_name);
+                        // console.log(window);
+                      })
+                });
+            }
+        }}>
+
+    <Paper elevation={0} sx={{ p: theme.spacing(2), m: theme.spacing(2) }}>
+      {isAddEditAccountDialogOpen && (
+        <AddEditAccountDialog
+          isOpen={isAddEditAccountDialogOpen}
+          onClose={() => setAddEditDialogOpen(false)}
+          onPositiveClick={() => setAddEditDialogOpen(false)}
+          onNegativeClick={() => setAddEditDialogOpen(false)}
+          account={actionableAccount}
+        />
+      )}
+      {isRemoveDialogOpen && (
+        <GenericConfirmationDialog
+          isOpen={isRemoveDialogOpen}
+          onClose={() => setRemoveDialogOpen(false)}
+          onPositiveClick={() => removeAccount()}
+          onNegativeClick={() => setRemoveDialogOpen(false)}
+          titleText={t('accounts.deleteAccountModalTitle', {
+            name: actionableAccount?.name,
+          })}
+          descriptionText={t('accounts.deleteAccountModalSubtitle')}
+          positiveText={t('common.delete')}
+        />
+      )}
+      <Box display="flex" justifyContent="space-between" flexDirection="column">
+        <PageHeader
+          title={t('accounts.accounts')}
+          subtitle={t('accounts.strapLine')}
+        />
+      </Box>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mb: 2 }}
+        startIcon={<AddCircleOutline />}
+        onClick={() => {
+          setAddEditDialogOpen(true);
+        }}
+      >
+        {t('accounts.addAccount')}
+      </Button>
+      <Grid container spacing={2}>
+        <Grid xs={12} md={8}>
+          <Tabs
+            selectionFollowsFocus
+            value={selectedTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+          >
+            <Tab label={t('accounts.all')} />
+            <Tab label={t('topBar.operatingFunds')} />
+            <Tab label={t('topBar.debt')} />
+            <Tab label={t('accounts.investments')} />
+            <Tab label={t('accounts.others')} />
+          </Tabs>
+        </Grid>
+        <Grid
+          xs={12}
+          md={4}
+          xsOffset="auto"
+          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+        >
+          <TextField
+            id="search"
+            label={t('common.search')}
+            variant="outlined"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              handleSearchChange(event);
+            }}
+>>>>>>> Stashed changes
           />
         )}
         {isRemoveDialogOpen && (
@@ -409,7 +543,12 @@ const Accounts = () => {
             />
           </Grid>
         </Grid>
+<<<<<<< Updated upstream
       </Paper>
+=======
+      </Grid>
+    </Paper>
+>>>>>>> Stashed changes
     </div>
   );
 };

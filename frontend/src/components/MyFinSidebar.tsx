@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   AccountBalanceWalletOutlined,
   BookmarksOutlined,
@@ -29,6 +29,7 @@ import {
   ROUTE_TRX,
 } from '../providers/RoutesProvider';
 import { useTranslation } from 'react-i18next';
+import { useSpeech } from '../providers/SpeechProvider';
 
 const MyFinSidebar = () => {
   const theme = useTheme();
@@ -39,9 +40,39 @@ const MyFinSidebar = () => {
   function toggleSidebarCollapse() {
     setCollapsed(!isCollapsed);
   }
-
+  const { recognizedText, isListening, startListening, stopListening, speak } = useSpeech();
+  const navigate = useNavigate();
   return (
     <div>
+      <div onMouseDown={(ev) => {
+			if (ev.button == 1) {
+				ev.preventDefault(); 
+				startListening(async () => {
+					console.log(recognizedText.current);
+					fetch("http://localhost:8000/api/talk", {
+						method: "POST", // Specify GET method
+						headers: {
+						  "Content-Type": "application/json", // Optional, for JSON payload
+						},
+						body: JSON.stringify({ "message": recognizedText.current}), // Include a body (not typical for GET)
+					  }).then(async (res)=> {
+						// console.log(res);
+						// console.log(await res.json());
+						let data = await res.json();
+						console.log(data);
+            let func_name = data.command.substring(4);
+						if(data.command.substring(0,3) == "Nav") {
+              navigate("/" + func_name.toLowerCase())
+            }
+            else{
+              window[func_name]();
+            }
+						console.log(func_name);
+						// console.log(window);
+					  })
+				});
+			}
+		}}>
       <Sidebar
         style={{ height: '100vh', top: 0, border: 0 }}
         backgroundColor={theme.palette.background.paper}
@@ -161,6 +192,7 @@ const MyFinSidebar = () => {
           {/*<Divider />*/}
         </Menu>
       </Sidebar>
+      </div>
     </div>
   );
 };

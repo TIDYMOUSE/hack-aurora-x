@@ -8,13 +8,16 @@ from langgraph.graph.state import CompiledGraph
 import tools
 from pydantic import BaseModel
 from uuid import UUID, uuid4
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
 def modify_messages(messages):
     return prompt.invoke({"messages": messages})
+
+class Simple(BaseModel):
+    message: str
 
 sessions = dict()
 
@@ -30,6 +33,7 @@ class SessionData(BaseModel):
     username: str
     tool_used: bool = ""
     page: str = ""
+    action: str = ""
 
 
 
@@ -113,33 +117,52 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow specific origins
+    allow_credentials=True,  # Allow cookies and authentication
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
 @app.get("/")
 async def root():
     return { "message": "Hello World" }
 
-@app.get("/api/talk", dependencies=[Depends(cookie)])
-async def test_llm(message: str, session_data: SessionData = Depends(verifier)):
-    agent = sessions[session_data.username]["agent"]
+@app.post("/api/talk")
+async def test_llm(message: Simple):
+    print(message)
+    agent = sessions["warren"]["agent"]
+    dummy = SessionData(username="warren")
+
     config= {
-            "run_name": session_data.username,
+            "run_name": "warren",
             "configurable": {
-                "data": session_data,
-                "thread_id": session_data.username
+                "data": dummy,
+                "thread_id": "warren"
             }
         }
-    print("Message received " + message)
+    print("Message received " + message.message)
     response = agent.invoke(
         {
-            "messages": [("user", message)]
+            "messages": [("user", message.message)]
         },
         config=config
     )
     command = ""
-    print(response["messages"])
-    if session_data.tool_used:
-        command = "Nav " + session_data.page
-    session_data.tool_used = False
-    session_data.page = None
+    # print(response["messages"])
+    if dummy.tool_used:
+        if dummy.action == "":
+            command = "Nav " + dummy.page
+        else:
+            if "Dialog" in dummy.action:
+                command = "Dig " + dummy.action
+            else:
+                command = "Act " + dummy.action
+    dummy.tool_used = False
+    dummy.page = ""
+    dummy.action = ""
     return { "response": response["messages"][-1].content, "command": command}
 
 

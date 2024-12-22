@@ -37,6 +37,7 @@ import {
 } from "../../services/user/userHooks.ts";
 import { Account } from "../../services/auth/authServices.ts";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const speech = useSpeech();
@@ -251,8 +252,8 @@ const Dashboard = () => {
     if (newDate == null) return;
     setMonthYear({ month: newDate.month() + 1, year: newDate.year() });
   };
-
   return (
+    
     <Grid container spacing={2} sx={{ p: theme.spacing(2) }}>
       <Grid xs={12} md={3}>
         <DatePicker
