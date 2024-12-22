@@ -13,6 +13,10 @@ from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
 def modify_messages(messages):
     return prompt.invoke({"messages": messages})
 
@@ -30,6 +34,7 @@ class SessionData(BaseModel):
     username: str
     tool_used: bool = ""
     page: str = ""
+    action: str = ""
 
 
 
@@ -112,8 +117,16 @@ async def lifespan(app: FastAPI):
     print("App shutdown")
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"],  # Replace with your frontend's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
+
+@app.get("/events")
 async def root():
     return { "message": "Hello World" }
 
@@ -135,11 +148,14 @@ async def test_llm(message: str, session_data: SessionData = Depends(verifier)):
         config=config
     )
     command = ""
-    print(response["messages"])
+    # print(response["messages"])
     if session_data.tool_used:
-        command = "Nav " + session_data.page
+        print(session_data.action)
+        print(session_data.page)
+        command = "Nav " + session_data.action + " " + session_data.page
     session_data.tool_used = False
     session_data.page = None
+    session_data.action = None
     return { "response": response["messages"][-1].content, "command": command}
 
 
