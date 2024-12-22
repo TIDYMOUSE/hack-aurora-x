@@ -74,7 +74,7 @@ const Dashboard = () => {
   const getMonthByMonthData = useGetMonthByMonthData(MONTH_BY_MONTH_MAX_MONTHS);
   const speech = useSpeech();
   useEffect(()=>{
-    speech.speak(dashboardLines["description"]);
+    speech.speak(dashboardLines["description"] + dashboardLines["possible_navs"]);
   }, [])
 
 

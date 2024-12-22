@@ -80,7 +80,29 @@ const Accounts = () => {
 
   useEffect(()=> {
     speak(accountsLines["description"]);
-  },[])
+  },[]);
+
+  useEffect(() => {
+    let getData = async () => {
+      let resp = await fetch("http://localhost:5000/describe/account", {
+        method: "POST", // Specify GET method
+        headers: {
+          "Content-Type": "application/json", // Optional, for JSON payload
+        },
+        body: JSON.stringify({
+          message:
+            JSON.parse(
+              window.localStorage.getItem(`myfin.accounts`) as string
+            ) ?? [],
+        }), // Include a body (not typical for GET)
+      });
+      let a = await resp.json();
+      console.log(a);
+      speak(a.response);
+    };
+    getData();
+  }, []);
+
 
   // Loading
   useEffect(() => {
