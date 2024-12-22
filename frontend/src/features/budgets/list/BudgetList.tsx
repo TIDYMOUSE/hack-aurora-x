@@ -51,6 +51,8 @@ import {
 import { debounce } from "lodash";
 import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
 import { useSpeech } from "../../../providers/SpeechProvider.tsx";
+import { use } from "i18next";
+import { budgetLines } from "../../../consts/budgetLines.ts";
 
 const BudgetList = () => {
   const theme = useTheme();
@@ -73,8 +75,14 @@ const BudgetList = () => {
   const [actionableBudget, setActionableBudget] = useState<Budget | null>(null);
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const { startListening, recognizedText, speak } = useSpeech();
+
   window.debouncedSearchQuery = debouncedSearchQuery;
   const removeBudgetRequest = useRemoveBudget();
+
+  useEffect(() => {
+    speak(budgetLines["description"]);
+  }, []);
 
   // Loading
   useEffect(() => {
@@ -321,7 +329,6 @@ const BudgetList = () => {
     actions: result,
   }));
 
-  const { startListening, recognizedText } = useSpeech();
 
   return (
     <div
@@ -342,6 +349,7 @@ const BudgetList = () => {
               let data = await res.json();
               console.log(data);
               let func_name = data.command.substring(4);
+              speak(data.response);
               if (data.command.substring(0, 3) == "Nav") {
                 navigate("/" + func_name.toLowerCase());
               } 

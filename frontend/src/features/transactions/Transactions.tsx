@@ -53,6 +53,7 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { ROUTE_IMPORT_TRX } from "../../providers/RoutesProvider.tsx";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { transactionsLines } from "../../consts/transactionsLines.ts";
 
 const Transactions = () => {
   const theme = useTheme();
@@ -76,6 +77,8 @@ const Transactions = () => {
   );
   const removeTransactionRequest = useRemoveTransaction();
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const { startListening, recognizedText, speak } = useSpeech();
+
 
   window.debouncedSearchQuery = debouncedSearchQuery;
 
@@ -87,6 +90,10 @@ const Transactions = () => {
       loader.hideLoading();
     }
   }, [getTransactionsRequest.isLoading]);
+
+  useEffect(() => {
+    speak(transactionsLines["description"]);
+  }, [])
 
   // Show error when isError is true
   useEffect(() => {
@@ -346,7 +353,6 @@ const Transactions = () => {
     })
   );
 
-  const { startListening, recognizedText } = useSpeech();
 
   return (
     <div
@@ -366,7 +372,9 @@ const Transactions = () => {
               // console.log(await res.json());
               let data = await res.json();
               console.log(data);
+              
               let func_name = data.command.substring(4);
+              speak(data.response);
               if (data.command.substring(0, 3) == "Nav") {
                 navigate("/" + func_name.toLowerCase());
               } 

@@ -37,10 +37,10 @@ import {
 } from "../../services/user/userHooks.ts";
 import { Account } from "../../services/auth/authServices.ts";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { dashboardLines } from "../../consts/dashboard.ts";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const speech = useSpeech();
   // speech.speak("hello world this is advait yadav");
   // speech.startListening();
 
@@ -72,6 +72,11 @@ const Dashboard = () => {
   const [debtChartData, setDebtChartData] = useState<ChartDataItem[]>([]);
   const [investChartData, setInvestChartData] = useState<ChartDataItem[]>([]);
   const getMonthByMonthData = useGetMonthByMonthData(MONTH_BY_MONTH_MAX_MONTHS);
+  const speech = useSpeech();
+  useEffect(()=>{
+    speech.speak(dashboardLines["description"]);
+  }, [])
+
 
   useEffect(() => {
     // Show loading indicator when isLoading is true

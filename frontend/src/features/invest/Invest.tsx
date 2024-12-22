@@ -17,6 +17,7 @@ import {
 } from "../../providers/RoutesProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { investmentsLines } from "../../consts/investmentsLines.ts";
 
 export enum InvestTab {
   Summary = 0,
@@ -35,6 +36,10 @@ const Invest = ({ defaultTab }: { defaultTab?: InvestTab }) => {
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
+
+  useEffect(()=> {
+    speak(investmentsLines["description"]);
+  }, []);
 
   useEffect(() => {
     switch (selectedTab) {
@@ -69,7 +74,7 @@ const Invest = ({ defaultTab }: { defaultTab?: InvestTab }) => {
     }
   };
 
-  const { startListening, recognizedText } = useSpeech();
+  const { startListening, recognizedText, speak } = useSpeech();
 
   return (
     <div
@@ -90,6 +95,7 @@ const Invest = ({ defaultTab }: { defaultTab?: InvestTab }) => {
               let data = await res.json();
               console.log(data);
               let func_name = data.command.substring(4);
+              speak(data.response)
               if (data.command.substring(0, 3) == "Nav") {
                 navigate("/" + func_name.toLowerCase());
               } 

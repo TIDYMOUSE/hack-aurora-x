@@ -23,7 +23,7 @@ sessions = dict()
 
 llm: ChatGoogleGenerativeAI = ChatGoogleGenerativeAI(
     model="gemini-1.5-pro",
-    temperature=0.2,
+    temperature=0.4,
     max_tokens=None,
     timeout=None,
     max_retries=2

@@ -4,7 +4,7 @@ from langchain_core.runnables import RunnableConfig
 
 @tool
 def navigateDashboardPage(config: RunnableConfig):
-    """Use when the user wants to navigate to the Dashboard page of a website."""
+    """Use when the user wants to navigate to the Dashboard page of the website."""
     config["configurable"]["data"].tool_used = True      
     config["configurable"]["data"].page = "Dashboard"
     config["configurable"]["data"].action = ""
@@ -12,7 +12,7 @@ def navigateDashboardPage(config: RunnableConfig):
 
 @tool
 def navigateTransactionsPage(config: RunnableConfig):
-    """Use when the user wants to navigate to the Transactions page of a website."""
+    """Use when the user wants to navigate to the Transactions page of the website."""
     config["configurable"]["data"].tool_used = True
     config["configurable"]["data"].page = "Transactions"
     config["configurable"]["data"].action = ""
@@ -20,7 +20,7 @@ def navigateTransactionsPage(config: RunnableConfig):
 
 @tool
 def navigateBudgetsPage(config: RunnableConfig):
-    """Use this when the user wants to navigate to the Budgets page of a website"""
+    """Use this when the user wants to navigate to the Budgets page of the website"""
     config["configurable"]["data"].tool_used = True
     config["configurable"]["data"].page = "Budgets"
     config["configurable"]["data"].action = ""
@@ -28,7 +28,7 @@ def navigateBudgetsPage(config: RunnableConfig):
 
 @tool
 def navigateAccountsPage(config: RunnableConfig):
-    """Use when the user wants to navigate to the Accounts page of a website."""
+    """Use when the user wants to navigate to the Accounts page of the website."""
     config["configurable"]["data"].tool_used = True
     config["configurable"]["data"].page = "Accounts"
     config["configurable"]["data"].action = ""

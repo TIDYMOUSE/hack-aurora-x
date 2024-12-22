@@ -11,6 +11,8 @@ import { ColorModeContext } from '../providers/MyFinThemeProvider.tsx';
 import { AccountCircleOutlined, LogoutOutlined } from '@mui/icons-material';
 import TopSummary from './TopSummary.tsx';
 import { ROUTE_PROFILE, ROUTE_AUTH } from '../providers/RoutesProvider.tsx';
+import { useSpeech } from '../providers/SpeechProvider.tsx';
+
 
 const PrivateRoute = () => {
   const colorMode = useContext(ColorModeContext);
@@ -19,6 +21,7 @@ const PrivateRoute = () => {
   const logout = useLogout();
   const navigate = useNavigate();
   const location = useLocation();
+  let speech = useSpeech();
 
   function toggleUiMode() {
     colorMode.toggleColorMode();
@@ -89,6 +92,16 @@ const PrivateRoute = () => {
                     aria-haspopup="false"
                     onClick={goToProfile}
                     color="inherit"
+                  >
+                    <AccountCircleOutlined />
+                  </IconButton>
+                  <IconButton
+                  size="large"
+                  aria-label="profile"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="false"
+                  onClick={()=>{speech.setLanguage();}}
+                  color="inherit"
                   >
                     <AccountCircleOutlined />
                   </IconButton>

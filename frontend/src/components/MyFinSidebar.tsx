@@ -61,6 +61,7 @@ const MyFinSidebar = () => {
 						let data = await res.json();
 						console.log(data);  
             let func_name = data.command.substring(4);
+            speak(data.response, ()=> {console.log("Completed")});
 						if(data.command.substring(0,3) == "Nav") {
               navigate("/" + func_name.toLowerCase())
             }else if(data.command.includes("Dialog")){

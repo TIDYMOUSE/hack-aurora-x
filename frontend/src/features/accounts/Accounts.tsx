@@ -37,6 +37,7 @@ import MyFinStaticTable from "../../components/MyFinStaticTable.tsx";
 import Typography from "@mui/material/Typography/Typography";
 import { useNavigate } from "react-router-dom";
 import { useSpeech } from "../../providers/SpeechProvider.tsx";
+import { accountsLines } from "../../consts/accountsLines.ts";
 
 const Accounts = () => {
   const theme = useTheme();
@@ -76,6 +77,10 @@ const Accounts = () => {
 
     return filteredList.sort((a, b) => a.status.localeCompare(b.status));
   }, [filter, searchQuery, accounts]);
+
+  useEffect(()=> {
+    speak(accountsLines["description"]);
+  },[])
 
   // Loading
   useEffect(() => {
@@ -273,7 +278,7 @@ const Accounts = () => {
   );
   
   const navigate = useNavigate();
-  const { startListening, recognizedText } = useSpeech();
+  const { startListening, recognizedText, speak} = useSpeech();
 
   return (
     <div
@@ -294,6 +299,7 @@ const Accounts = () => {
               let data = await res.json();
               console.log(data);
               let func_name = data.command.substring(4);
+              speak(data.response);
               if (data.command.substring(0, 3) == "Nav") {
                 navigate("/" + func_name.toLowerCase());
               }

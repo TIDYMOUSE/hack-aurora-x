@@ -26,6 +26,7 @@ const getExpensesIncomeDistributionForMonth = async (
     );
     res.json(data);
   } catch (err) {
+    console.log(err);
     Logger.addLog(err);
     next(err || APIError.internalServerError());
   }

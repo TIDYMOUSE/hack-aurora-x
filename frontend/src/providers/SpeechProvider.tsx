@@ -13,6 +13,7 @@ interface SpeechContextProps {
   startListening: (onSpeechEnd?: () => Promise<void>) => void;
   stopListening: () => void;
   speak: (text: string, onComplete?: () => void) => void;
+  setLanguage: () => void;
 }
 
 const SpeechContext = createContext<SpeechContextProps | undefined>(undefined);
@@ -21,6 +22,8 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
   const recognizedText = useRef<string>("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const [lang, setLang] = useState<number>(0);
+  const mapping = ["en-US", "hi-IN"];
   let result = "";
   const startListening = async (onSpeechEnd?: () => Promise<void>) => {
     if (
@@ -37,7 +40,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.continuous = false; // Stops after one result
-
+    recognition.lang = mapping[lang];
     recognition.onstart = () => {
       setIsListening(true);
       console.log("Speech Recognition Started");
@@ -46,6 +49,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.resultIndex][0].transcript;
       recognizedText.current = transcript;
+      console.log("recog" + recognition.lang);
       console.log("Recognized Text:", recognizedText.current);
     };
 
@@ -89,11 +93,17 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
+    utterance.lang = mapping[lang];
     utterance.pitch = 1;
     utterance.rate = 1;
     utterance.volume = 1;
-
+    console.log("utt" + utterance.lang);
+    // let ss = new SpeechSynthesis();
+    // let voices = ss.getVoices();
+    // const hindiVoice = voices.find((voice) => voice.lang === "hi-IN");
+    // if (hindiVoice && utterance.lang == "hi-IN") {
+    //   utterance.voice = hindiVoice; // Use the Hindi voice
+    // }
     utterance.onstart = () => console.log("Speech synthesis started.");
     utterance.onend = () => {
       console.log("Speech synthesis ended.");
@@ -103,6 +113,9 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
     speechSynthesis.speak(utterance);
   };
 
+  let setLanguage = () => {
+    setLang((prev)=> (prev + 1) % 2);
+  }
 
   return (
     <SpeechContext.Provider
@@ -112,6 +125,7 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
         startListening,
         stopListening,
         speak,
+        setLanguage
       }}
     >
       {children}

@@ -51,7 +51,7 @@ const Profile = () => {
   function handleThemeChange(event: React.ChangeEvent<HTMLInputElement>) {
     setTheme(event.currentTarget.value as PaletteMode);
   }
-  const { startListening, recognizedText } = useSpeech();
+  const { startListening, recognizedText, speak } = useSpeech();
   const navigate = useNavigate();
 
   return (
@@ -74,6 +74,7 @@ const Profile = () => {
                 let data = await res.json();
                 console.log(data);
                 let func_name = data.command.substring(4);
+                speak(data.response);
                 if (data.command.substring(0, 3) == "Nav") {
                   navigate("/" + func_name.toLowerCase());
                 } 

@@ -479,7 +479,7 @@ const accountService = {
         dbClient.accounts.count({
             where: {users_user_id: userId},
         }),
-    getAllBalancesSnapshotsForMaccounthForUser: async (
+    getAllBalancesSnapshotsForMonthForUser: async (
         userId: bigint,
         month: number,
         year: number,

@@ -110,6 +110,7 @@ const getUserAccountsBalanceSnapshot = async (req: Request, res: Response, next:
     const data = await AccountService.getUserAccountsBalanceSnapshot(sessionData.userId);
     res.json(data);
   } catch (err) {
+    console.log(err);
     Logger.addLog(err);
     next(err || APIError.internalServerError());
   }
