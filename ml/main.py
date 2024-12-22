@@ -15,14 +15,14 @@ from fastapi_sessions.frontends.implementations import SessionCookie, CookiePara
 
 def modify_messages(messages):
     return prompt.invoke({"messages": messages})
-    
+
 class Simple(BaseModel):
     message: str
 
 sessions = dict()
 
 llm: ChatGoogleGenerativeAI = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-1.5-pro",
     temperature=0.2,
     max_tokens=None,
     timeout=None,

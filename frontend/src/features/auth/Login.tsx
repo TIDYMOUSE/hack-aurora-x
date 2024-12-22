@@ -49,7 +49,7 @@ const Login = () => {
   const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   useEffect(() => {
-    let loop = () => {
+    let loop = async () => {
       if (id == 0) {
         speak("Enter username", () => setId(1));
       } else if (id == 1) {
@@ -66,6 +66,10 @@ const Login = () => {
           setPassword(recognizedText.current);
           setId(4);
         });
+      }
+      else if(id === 4){
+        await handleSubmit(userName,password)
+        setId(5)
       }
     };
     loop();

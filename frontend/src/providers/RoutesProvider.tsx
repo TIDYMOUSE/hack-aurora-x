@@ -49,7 +49,7 @@ const RoutesProvider = () => {
         <Route path={`${ROUTE_AUTH}`} element={<Login />} />
         <Route element={<PrivateRoute />}>
           {/* Private authenticated routes */}
-          <Route path={`${ROUTE_DASHBOARD}`} element={<Tp />} />
+          <Route path={`${ROUTE_DASHBOARD}`} element={<Dashboard />} />
           <Route path={`${ROUTE_PROFILE}`} element={<Profile />} />
           <Route path={`${ROUTE_TRX}`} element={<Transactions />} />
           <Route path={`${ROUTE_BUDGETS}`} element={<BudgetList />} />
