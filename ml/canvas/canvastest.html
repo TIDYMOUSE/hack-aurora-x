@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Drawing Recognition</title>
+  <style>
+    #canvas {
+      border: 4px solid black;
+      cursor: crosshair;
+      background-color: white;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    #passwordDisplay {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5em;
+      background-color: rgba(255,255,255,0.9);
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .instructions {
+      margin: 20px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      font-size: 1.2em;
+    }
+    #startDrawing {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="instructions">
+    <p>Instructions:</p>
+    <ol>
+      <li>Click "Start Drawing" and the canvas will appear at your cursor position</li>
+      <li>Right-click and hold to draw each character</li>
+      <li>Release to submit the character</li>
+      <li>Use arrow keys to adjust canvas position if needed</li>
+      <li>Left-click when you're done entering all characters</li>
+    </ol>
+  </div>
+  
+  <button type="button" id="startDrawing">Start Drawing</button>
+  <div id="passwordDisplay"></div>
+  <canvas id="canvas" hidden></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
