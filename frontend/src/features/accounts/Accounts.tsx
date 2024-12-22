@@ -271,8 +271,7 @@ const Accounts = () => {
     },
     [debouncedSearchQuery]
   );
-
-<<<<<<< Updated upstream
+  
   const navigate = useNavigate();
   const { startListening, recognizedText } = useSpeech();
 
@@ -315,18 +314,6 @@ const Accounts = () => {
         }
       }}
     >
-      <Paper elevation={0} sx={{ p: theme.spacing(2), m: theme.spacing(2) }}>
-        {isAddEditAccountDialogOpen && (
-          <AddEditAccountDialog
-            isOpen={isAddEditAccountDialogOpen}
-            onClose={() => setAddEditDialogOpen(false)}
-            onPositiveClick={() => setAddEditDialogOpen(false)}
-            onNegativeClick={() => setAddEditDialogOpen(false)}
-            account={actionableAccount}
-=======
-  const { recognizedText, isListening, startListening, stopListening, speak } = useSpeech();
-  const navigate = useNavigate()
-  return (
     <Paper elevation={0} sx={{ p: theme.spacing(2), m: theme.spacing(2) }}>
       {isAddEditAccountDialogOpen && (
         <AddEditAccountDialog
@@ -419,6 +406,7 @@ const Accounts = () => {
         </Grid>
       </Grid>
     </Paper>
+    </div>
   );
 };
 

@@ -17,17 +17,12 @@ import { useTranslation } from "react-i18next";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
-import { AxiosError } from 'axios';
-import { useSpeech } from '../../providers/SpeechProvider.tsx';
-// import { time } from 'console';
-import { TIMEOUT } from 'dns';
-import { use } from 'i18next';
-
+} from "../../providers/SnackbarProvider.tsx";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
+import { AxiosError } from "axios";
+import { useSpeech } from "../../providers/SpeechProvider.tsx";
 
 const Login = () => {
-  const speech = useSpeech()
   const navigate = useNavigate();
   const theme = useTheme();
   const loader = useLoading();
@@ -38,87 +33,6 @@ const Login = () => {
   const snackbar = useSnackbar();
 
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const [voiceInputStep, setVoiceInputStep] = useState<'idle' | 'username' | 'confirmUsername' | 'password' | 'confirmPassword'>('idle');
-  const [tempCredentials, setTempCredentials] = useState({ username: '', password: '' });
-  const [voiceInputAttempts, setVoiceInputAttempts] = useState(0);
-  const MAX_ATTEMPTS = 3;
-
-  const handleVoiceInput = async (ev: React.MouseEvent) => {
-    if (ev.button !== 1) return; // Only proceed on middle click
-    ev.preventDefault();
-    
-    setVoiceInputStep('username');
-    setVoiceInputAttempts(0);
-    await startVoiceFlow();
-  };
-
-  const startVoiceFlow = async () => {
-    try {
-      // Username collection
-      const username = await collectVoiceInput('username');
-      if (!username) return;
-
-      // Password collection
-      const password = await collectVoiceInput('password');
-      if (!password) return;
-
-      // Set the final values
-      setUsername(username);
-      setPassword(password);
-      
-      speak("Credentials collected successfully. You can now sign in.");
-      
-    } catch (error) {
-      console.error('Voice input error:', error);
-      speak("Voice input cancelled. Please try again or use keyboard input.");
-      setVoiceInputStep('idle');
-    }
-  };
-
-  const collectVoiceInput = async (type: 'username' | 'password'): Promise<string | null> => {
-    const maxAttempts = 3;
-    let attempts = 0;
-    
-    while (attempts < maxAttempts) {
-      try {
-        // First attempt
-        speak(`Please say your ${type}`);
-        await startListening();
-        const firstInput = recognizedText.current?.trim();
-        stopListening();
-        
-        if (!firstInput) {
-          speak(`No ${type} detected. Please try again.`);
-          attempts++;
-          continue;
-        }
-
-        // Confirmation
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
-        speak(`Please confirm your ${type}`);
-        await startListening();
-        const confirmInput = recognizedText.current?.trim();
-        stopListening();
-
-        if (firstInput === confirmInput) {
-          speak(`${type} confirmed`);
-          return firstInput;
-        } else {
-          speak(`${type} mismatch. Please try again.`);
-          attempts++;
-        }
-      } catch (error) {
-        console.error(`Error collecting ${type}:`, error);
-        attempts++;
-      }
-    }
-
-    speak(`Failed to collect ${type} after ${maxAttempts} attempts. Please try again or use keyboard input.`);
-    return null;
-  };
 
   async function handleSubmit(
     username: string,
@@ -128,7 +42,34 @@ const Login = () => {
     if (isLogin) loginRequest.mutate({ username, password });
     else registerRequest.mutate({ username, password, email: email ?? "" });
   }
-    const { recognizedText, isListening, startListening, stopListening, speak } = useSpeech();
+
+  const { recognizedText, isListening, startListening, stopListening, speak } =
+    useSpeech();
+  const [id, setId] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  useEffect(() => {
+    let loop = () => {
+      if (id == 0) {
+        speak("Enter username", () => setId(1));
+      } else if (id == 1) {
+        startListening(async () => {
+          console.log("username: ", recognizedText.current);
+          setUserName(recognizedText.current);
+          setId(2);
+        });
+      } else if (id == 2) {
+        speak("Enter password", () => setId(3));
+      } else if (id == 3) {
+        startListening(async () => {
+          console.log("password: ", recognizedText.current);
+          setPassword(recognizedText.current);
+          setId(4);
+        });
+      }
+    };
+    loop();
+  }, [id]);
 
   const formValidationSchema = yup.object().shape({
     username: yup.string().min(3).required(t("login.fillAllFields")),
@@ -195,7 +136,6 @@ const Login = () => {
 
   return (
     <div>
-      <div onMouseDown={handleVoiceInput}>
       <Container maxWidth="xs">
         <Box
           p={3}
@@ -302,9 +242,7 @@ const Login = () => {
         </Box>
       </Container>
     </div>
-    </div>
   );
 };
 
 export default Login;
-

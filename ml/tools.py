@@ -5,7 +5,7 @@ from langchain_core.runnables import RunnableConfig
 @tool
 def navigateDashboardPage(config: RunnableConfig):
     """Use when the user wants to navigate to the Dashboard page of a website."""
-    config["configurable"]["data"].tool_used = True
+    config["configurable"]["data"].tool_used = True      
     config["configurable"]["data"].page = "Dashboard"
     config["configurable"]["data"].action = ""
     return "Successfully navigated to the Dashboard page"

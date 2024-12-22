@@ -15,7 +15,7 @@ from fastapi_sessions.frontends.implementations import SessionCookie, CookiePara
 
 def modify_messages(messages):
     return prompt.invoke({"messages": messages})
-
+    
 class Simple(BaseModel):
     message: str
 
@@ -23,7 +23,7 @@ sessions = dict()
 
 llm: ChatGoogleGenerativeAI = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
-    temperature=0.4,
+    temperature=0.2,
     max_tokens=None,
     timeout=None,
     max_retries=2
@@ -99,7 +99,7 @@ prompt = ChatPromptTemplate.from_messages(
             , you have many tools at your 
             disposal which can help you navigate a website and you should use it when you 
             feel a user wants to navigate to a specific page. Always respond in brief concise paragraphs. Do not say you cannot provide financial advice. 
-            Do not tell anyone to consult somebody else. Respond in the language the user types. You can provide financial advise"""
+            Do not tell anyone to consult somebody else. Respond in the language the user types. You can provide financial advise. Remember that you have tools to help you do things like creating an account for the user."""
         ),
         (
             "human",

@@ -34,7 +34,6 @@ export const SpeechProvider = ({ children }: { children: ReactNode }) => {
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.continuous = false; // Stops after one result
