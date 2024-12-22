@@ -219,7 +219,7 @@ const Accounts = () => {
       sortable: false,
       renderCell: (params) => (
         <Chip
-          label={params.value}
+          label={params.value == "Ativa"? "Active" : "Inactive"}
           variant="outlined"
           color={
             params.value.startsWith(AccountStatus.Active)
