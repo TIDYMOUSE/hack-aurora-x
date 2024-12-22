@@ -2,25 +2,25 @@ import {
   Account,
   AccountStatus,
   AccountType,
-} from '../../services/auth/authServices.ts';
-import { Trans, useTranslation } from 'react-i18next';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
+} from "../../services/auth/authServices.ts";
+import { Trans, useTranslation } from "react-i18next";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent/DialogContent';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import React, { useEffect, useState } from 'react';
+} from "../../providers/SnackbarProvider.tsx";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent/DialogContent";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import React, { useEffect, useState } from "react";
 import {
   Checkbox,
   MenuItem,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   AccountCircle,
   AcUnit,
@@ -30,19 +30,20 @@ import {
   RemoveCircleOutline,
   Send,
   Undo,
-} from '@mui/icons-material';
-import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
-import { cssGradients } from '../../utils/gradientUtils.ts';
-import { ColorGradient } from '../../consts';
-import TextField from '@mui/material/TextField/TextField';
-import Stack from '@mui/material/Stack/Stack';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import Button from '@mui/material/Button/Button';
-import DialogActions from '@mui/material/DialogActions/DialogActions';
+} from "@mui/icons-material";
+import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
+import { cssGradients } from "../../utils/gradientUtils.ts";
+import { ColorGradient } from "../../consts";
+import TextField from "@mui/material/TextField/TextField";
+import Stack from "@mui/material/Stack/Stack";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import Button from "@mui/material/Button/Button";
+import DialogActions from "@mui/material/DialogActions/DialogActions";
 import {
   useAddAccount,
   useEditAccount,
-} from '../../services/account/accountHooks.ts';
+} from "../../services/account/accountHooks.ts";
+import { useSpeech } from "../../providers/SpeechProvider.tsx";
 
 type Props = {
   isOpen: boolean;
@@ -53,31 +54,119 @@ type Props = {
 };
 
 const AddEditAccountDialog = (props: Props) => {
+  const { speak, startListening, recognizedText } = useSpeech();
+
+  const [id, setId] = useState<number>(0);
+  const [accName, setAccName] = useState<string>("");
+  const [accType, setAccType] = useState<AccountType | "">("");
+  const [dess, setDesc] = useState<string>("");
+
+  const addAccountRequest = useAddAccount();
+  const editAccountRequest = useEditAccount();
+
+  useEffect(() => {
+    let loop = async () => {
+      if (id == 0) {
+        speak(
+          "This is the interface for adding a new account. Please speak your account Name",
+          () => setId(1)
+        );
+      } else if (id == 1) {
+        startListening(async () => {
+          console.log("acc name: ", recognizedText.current);
+          setAccName(recognizedText.current);
+          setId(2);
+        });
+      } else if (id == 2) {
+        speak(
+          "Please mention your Account type from the following options,Checking, Savings, Investing , Credit, Meal, Wallet,Other",
+          () => setId(3)
+        );
+      } else if (id == 3) {
+        startListening(async () => {
+          let t = recognizedText.current.toLowerCase().trim();
+          let ii = 4;
+          console.log("account type: ", t);
+          if (t == "checking") {
+            setAccType(AccountType.Checking);
+          } else if (t == "savings") {
+            setAccType(AccountType.Savings);
+          } else if (t == "investing") {
+            setAccType(AccountType.Investing);
+          } else if (t == "credit") {
+            setAccType(AccountType.Credit);
+          } else if (t == "meal") {
+            setAccType(AccountType.Meal);
+          } else if (t == "wallet") {
+            setAccType(AccountType.Wallet);
+          } else if (t == "other") {
+            setAccType(AccountType.Other);
+          } else {
+            speak("Invalid type: " + t, () => {
+              ii = 2;
+            });
+          }
+          setId(ii);
+          // setPassword(recognizedText.current);
+        });
+      } else if (id == 4) {
+        speak("Please describe your account's description", () => setId(5));
+      } else if (id == 5) {
+        startListening(async () => {
+          console.log("description ", recognizedText.current);
+          setDesc(recognizedText.current);
+          setId(6);
+        });
+      } else if (id == 6) {
+        if (isEditForm) {
+          editAccountRequest.mutate({
+            account_id: props.account?.account_id
+              ? props.account.account_id
+              : BigInt(1),
+            new_name: nameValue,
+            new_type: typeValue as AccountType,
+            new_status: statusValue,
+            new_description: descriptionValue,
+            exclude_from_budgets: excludeFromBudgetsValue,
+            color_gradient: colorValue as ColorGradient,
+          });
+        } else {
+          addAccountRequest.mutate({
+            name: accName,
+            type: accType as AccountType,
+            status: AccountStatus.Active,
+            description: dess,
+            exclude_from_budgets: false,
+            color_gradient: ColorGradient.Blue as ColorGradient,
+          });
+        }
+      }
+    };
+    loop();
+  }, [id]);
+
   const isEditForm = props.account !== null;
 
   const { t } = useTranslation();
   const loader = useLoading();
   const snackbar = useSnackbar();
 
-  const addAccountRequest = useAddAccount();
-  const editAccountRequest = useEditAccount();
-
   const [excludeFromBudgetsValue, setExcludeFromBudgetsValue] = useState(
-    props.account?.exclude_from_budgets == true,
+    props.account?.exclude_from_budgets == true
   );
   const colorOptions = Object.values(ColorGradient);
   const [colorValue, setColorValue] = useState<string>(
-    props.account?.color_gradient || colorOptions[0],
+    props.account?.color_gradient || colorOptions[0]
   );
   const [statusValue, setStatusValue] = useState<AccountStatus>(
-    props.account?.status || AccountStatus.Active,
+    props.account?.status || AccountStatus.Active
   );
-  const [nameValue, setNameValue] = useState<string>(props.account?.name || '');
+  const [nameValue, setNameValue] = useState<string>(props.account?.name || "");
   const [descriptionValue, setDescriptionValue] = useState<string>(
-    props.account?.description || '',
+    props.account?.description || ""
   );
-  const [typeValue, setTypeValue] = useState<AccountType | ''>(
-    props.account?.type || '',
+  const [typeValue, setTypeValue] = useState<AccountType | "">(
+    props.account?.type || ""
   );
   const typeOptions = Object.values(AccountType);
 
@@ -94,8 +183,8 @@ const AddEditAccountDialog = (props: Props) => {
   useEffect(() => {
     if (addAccountRequest.isError || editAccountRequest.isError) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [addAccountRequest.isError, editAccountRequest.isError]);
@@ -109,7 +198,7 @@ const AddEditAccountDialog = (props: Props) => {
 
   const onAccountStatusSelected = (
     _: React.MouseEvent<HTMLElement>,
-    newStatus: string | null,
+    newStatus: string | null
   ) => {
     if (
       newStatus !== null &&
@@ -127,14 +216,14 @@ const AddEditAccountDialog = (props: Props) => {
       id="color-select"
       value={selectedColor}
       onChange={(event) => setColorValue(event.target.value)}
-      label={t('accounts.color')}
+      label={t("accounts.color")}
     >
       {colorOptions.map((color) => (
         <MenuItem key={color} value={color}>
           <div
             style={{
-              margin: '0 auto',
-              background: cssGradients[color] ?? '',
+              margin: "0 auto",
+              background: cssGradients[color] ?? "",
               width: 60,
               height: 20,
               borderRadius: 20,
@@ -161,13 +250,13 @@ const AddEditAccountDialog = (props: Props) => {
       <ToggleButton value={AccountStatus.Active}>
         <Stack direction="row" spacing={1}>
           <PlayArrow />
-          <Typography variant="body1">{t('accounts.active')}</Typography>
+          <Typography variant="body1">{t("accounts.active")}</Typography>
         </Stack>
       </ToggleButton>
       <ToggleButton value={AccountStatus.Inactive}>
         <Stack direction="row" spacing={1}>
           <AcUnit />
-          <Typography variant="body1">{t('accounts.inactive')}</Typography>
+          <Typography variant="body1">{t("accounts.inactive")}</Typography>
         </Stack>
       </ToggleButton>
     </ToggleButtonGroup>
@@ -180,7 +269,7 @@ const AddEditAccountDialog = (props: Props) => {
       open={props.isOpen}
       onClose={props.onClose}
       PaperProps={{
-        component: 'form',
+        component: "form",
         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
           if (isEditForm && props.account) {
@@ -215,8 +304,8 @@ const AddEditAccountDialog = (props: Props) => {
               <Trans
                 i18nKey={
                   isEditForm
-                    ? 'accounts.editAccountModalTitle'
-                    : 'accounts.addNewAccountModalTitle'
+                    ? "accounts.editAccountModalTitle"
+                    : "accounts.addNewAccountModalTitle"
                 }
                 values={{
                   name: props.account?.name,
@@ -224,7 +313,7 @@ const AddEditAccountDialog = (props: Props) => {
               />
               {/* Exclude from budgets */}
               <FormControlLabel
-                sx={{ width: 'fit-content' }}
+                sx={{ width: "fit-content" }}
                 control={
                   <Checkbox
                     icon={<RemoveCircleOutline />}
@@ -232,7 +321,7 @@ const AddEditAccountDialog = (props: Props) => {
                   />
                 }
                 checked={excludeFromBudgetsValue}
-                label={t('accounts.excludeFromBudgets')}
+                label={t("accounts.excludeFromBudgets")}
                 name="exclude_from_budgets"
                 onChange={(_e, checked) => setExcludeFromBudgetsValue(checked)}
               />
@@ -243,7 +332,7 @@ const AddEditAccountDialog = (props: Props) => {
             md={2}
             display="flex"
             justifyContent="flex-end"
-            sx={{ height: 'fit-content' }}
+            sx={{ height: "fit-content" }}
           >
             <AccountStatusToggle
               selectedStatus={statusValue}
@@ -262,9 +351,9 @@ const AddEditAccountDialog = (props: Props) => {
                 margin="dense"
                 id="name"
                 name="name"
-                value={nameValue || ''}
+                value={nameValue || ""}
                 onChange={(e) => setNameValue(e.target.value)}
-                label={t('accounts.name')}
+                label={t("accounts.name")}
                 fullWidth
                 variant="outlined"
                 InputProps={{
@@ -286,9 +375,9 @@ const AddEditAccountDialog = (props: Props) => {
                 name="type"
                 value={typeValue}
                 onChange={(event) =>
-                  setTypeValue(event.target.value as AccountType | '')
+                  setTypeValue(event.target.value as AccountType | "")
                 }
-                label={t('accounts.type')}
+                label={t("accounts.type")}
               >
                 {typeOptions.map((type) => (
                   <MenuItem key={type} value={type}>
@@ -306,9 +395,9 @@ const AddEditAccountDialog = (props: Props) => {
                 margin="dense"
                 id="description"
                 name="description"
-                value={descriptionValue || ''}
+                value={descriptionValue || ""}
                 onChange={(e) => setDescriptionValue(e.target.value)}
-                label={t('common.description')}
+                label={t("common.description")}
                 fullWidth
                 variant="outlined"
                 InputProps={{
@@ -329,10 +418,10 @@ const AddEditAccountDialog = (props: Props) => {
           startIcon={<Undo />}
           onClick={props.onNegativeClick}
         >
-          {t('common.cancel')}
+          {t("common.cancel")}
         </Button>
         <Button variant="contained" startIcon={<Send />} type="submit">
-          {t(isEditForm ? 'common.edit' : 'common.add')}
+          {t(isEditForm ? "common.edit" : "common.add")}
         </Button>
       </DialogActions>
     </Dialog>
