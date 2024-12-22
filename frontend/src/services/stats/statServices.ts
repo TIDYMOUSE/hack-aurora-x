@@ -21,8 +21,8 @@ export interface CategoryWithCalculatedAmounts {
 }
 
 export enum Status {
-  Active = 'Ativa',
-  Inactive = 'Inativa',
+  Active = 'Active',
+  Inactive = 'Inactive',
 }
 
 export interface MonthExpensesDistributionDataResponse {

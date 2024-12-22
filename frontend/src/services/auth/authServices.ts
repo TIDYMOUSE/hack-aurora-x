@@ -1,8 +1,8 @@
 import { axios } from '../../data/axios.ts';
 
 export enum AccountStatus {
-  Active = 'Ativa',
-  Inactive = 'Inativa',
+  Active = 'Active',
+  Inactive = 'Inactive',
 }
 
 export type Account = {
