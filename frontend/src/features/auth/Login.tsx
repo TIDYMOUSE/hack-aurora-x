@@ -86,35 +86,9 @@ const Login = () => {
       try {
         // First attempt
         speak(`Please say your ${type}`);
-        let firstInput
-        await startListening(
-          async () => {
-            console.log(recognizedText.current);
-            fetch("http://localhost:8000/api/talk", {
-              method: "POST", // Specify GET method
-              headers: {
-                "Content-Type": "application/json", // Optional, for JSON payload
-              },
-              body: JSON.stringify({ "message": recognizedText.current}), // Include a body (not typical for GET)
-              }).then(async (res)=> {
-              // console.log(res);
-              // console.log(await res.json());
-              let data = await res.json();
-              console.log(data);
-              let func_name = data.command.substring(4);
-              if(data.command.substring(0,3) == "Nav") {
-                navigate("/" + func_name.toLowerCase())
-              }
-              else{
-                window[func_name]();
-              }
-              console.log(func_name);
-              // console.log(window);
-              })
-          }
-        );
-        // const firstInput = recognizedText.current;
-        // stopListening();
+        await startListening();
+        const firstInput = recognizedText.current?.trim();
+        stopListening();
         
         if (!firstInput) {
           speak(`No ${type} detected. Please try again.`);
@@ -126,8 +100,8 @@ const Login = () => {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
         speak(`Please confirm your ${type}`);
         await startListening();
-        const confirmInput = recognizedText.current;
-        // stopListening();
+        const confirmInput = recognizedText.current?.trim();
+        stopListening();
 
         if (firstInput === confirmInput) {
           speak(`${type} confirmed`);

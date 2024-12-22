@@ -23,7 +23,7 @@ sessions = dict()
 
 llm: ChatGoogleGenerativeAI = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
-    temperature=0,
+    temperature=0.4,
     max_tokens=None,
     timeout=None,
     max_retries=2
@@ -111,6 +111,11 @@ prompt = ChatPromptTemplate.from_messages(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    session = uuid4()
+    data = SessionData(username="warren")
+    sessions[data.username] = {"memory": MemorySaver(), "agent": None}
+    sessions[data.username]["agent"] = create_react_agent(llm, tools=tools.tools, checkpointer=sessions[data.username]["memory"], messages_modifier=modify_messages)
+    await backend.create(session, data)
     print("App startup: LLM INITIALISED")
     yield
     print("App shutdown")
