@@ -1,21 +1,21 @@
-import { Checkbox, FormGroup, useTheme } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import React, { memo, useEffect, useMemo, useState } from 'react';
-import Paper from '@mui/material/Paper/Paper';
-import Box from '@mui/material/Box/Box';
-import PageHeader from '../../../components/PageHeader.tsx';
-import Stack from '@mui/material/Stack/Stack';
+import { Checkbox, FormGroup, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import React, { memo, useEffect, useMemo, useState } from "react";
+import Paper from "@mui/material/Paper/Paper";
+import Box from "@mui/material/Box/Box";
+import PageHeader from "../../../components/PageHeader.tsx";
+import Stack from "@mui/material/Stack/Stack";
 import {
   useGetBudgets,
   useRemoveBudget,
-} from '../../../services/budget/budgetHooks.ts';
-import { useLoading } from '../../../providers/LoadingProvider.tsx';
-import { GridColDef } from '@mui/x-data-grid';
+} from "../../../services/budget/budgetHooks.ts";
+import { useLoading } from "../../../providers/LoadingProvider.tsx";
+import { GridColDef } from "@mui/x-data-grid";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../../providers/SnackbarProvider.tsx';
-import { Budget } from '../../../services/budget/budgetServices.ts';
+} from "../../../providers/SnackbarProvider.tsx";
+import { Budget } from "../../../services/budget/budgetServices.ts";
 import {
   AddCircleOutline,
   ArrowOutward,
@@ -24,32 +24,33 @@ import {
   LockOpen,
   Search,
   Visibility,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   getCurrentMonth,
   getCurrentYear,
   getMonthsFullName,
-} from '../../../utils/dateUtils.ts';
+} from "../../../utils/dateUtils.ts";
 import {
   formatNumberAsCurrency,
   formatNumberAsPercentage,
-} from '../../../utils/textUtils.ts';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import Button from '@mui/material/Button/Button';
-import TextField from '@mui/material/TextField/TextField';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import MyFinTable from '../../../components/MyFinTable.tsx';
-import Typography from '@mui/material/Typography/Typography';
-import Chip from '@mui/material/Chip/Chip';
-import IconButton from '@mui/material/IconButton';
-import GenericConfirmationDialog from '../../../components/GenericConfirmationDialog.tsx';
-import { useNavigate } from 'react-router-dom';
+} from "../../../utils/textUtils.ts";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import Button from "@mui/material/Button/Button";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import MyFinTable from "../../../components/MyFinTable.tsx";
+import Typography from "@mui/material/Typography/Typography";
+import Chip from "@mui/material/Chip/Chip";
+import IconButton from "@mui/material/IconButton";
+import GenericConfirmationDialog from "../../../components/GenericConfirmationDialog.tsx";
+import { useNavigate } from "react-router-dom";
 import {
   ROUTE_BUDGET_DETAILS,
   ROUTE_BUDGET_NEW,
-} from '../../../providers/RoutesProvider.tsx';
-import { debounce } from 'lodash';
-import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
+} from "../../../providers/RoutesProvider.tsx";
+import { debounce } from "lodash";
+import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
+import { useSpeech } from "../../../providers/SpeechProvider.tsx";
 
 const BudgetList = () => {
   const theme = useTheme();
@@ -57,7 +58,7 @@ const BudgetList = () => {
   const loader = useLoading();
   const snackbar = useSnackbar();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 15,
     page: 0,
@@ -67,12 +68,12 @@ const BudgetList = () => {
     paginationModel.page,
     paginationModel.pageSize,
     searchQuery,
-    showOnlyOpen ? 'O' : undefined,
+    showOnlyOpen ? "O" : undefined
   );
   const [actionableBudget, setActionableBudget] = useState<Budget | null>(null);
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-
+  window.debouncedSearchQuery = debouncedSearchQuery;
   const removeBudgetRequest = useRemoveBudget();
 
   // Loading
@@ -88,8 +89,8 @@ const BudgetList = () => {
   useEffect(() => {
     if (getBudgetsRequest.isError || removeBudgetRequest.isError) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [getBudgetsRequest.isError, removeBudgetRequest.isError]);
@@ -107,26 +108,34 @@ const BudgetList = () => {
   const getPercentageTextColor = (percentage: number) => {
     switch (true) {
       case percentage > 0:
-        return 'success';
+        return "success";
       case percentage < 0:
-        return 'warning';
+        return "warning";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const goToBudgetDetails = (budgetId: bigint) => {
-    navigate(ROUTE_BUDGET_DETAILS.replace(':id', budgetId + ''));
+    navigate(ROUTE_BUDGET_DETAILS.replace(":id", budgetId + ""));
   };
+
+  // WARREN
+  window.goToBudgetDetails = goToBudgetDetails;
 
   const handleAddBudgetClick = () => {
     navigate(ROUTE_BUDGET_NEW);
   };
 
+  window.handleAddBudgetClick = handleAddBudgetClick;
+
   const handleRemoveBudgetClick = (budget: Budget) => {
     setActionableBudget(budget);
     setRemoveDialogOpen(true);
   };
+
+  // WARREN
+  window.handleRemoveBudgetClick = handleRemoveBudgetClick;
 
   const removeBudget = () => {
     if (!actionableBudget) return;
@@ -136,8 +145,8 @@ const BudgetList = () => {
 
   const columns: GridColDef[] = [
     {
-      field: 'status',
-      headerName: '',
+      field: "status",
+      headerName: "",
       width: 10,
       editable: false,
       sortable: false,
@@ -145,8 +154,8 @@ const BudgetList = () => {
       renderCell: (params) => (params.value ? <LockOpen /> : <Lock />),
     },
     {
-      field: 'month',
-      headerName: t('budgets.month'),
+      field: "month",
+      headerName: t("budgets.month"),
       width: 100,
       editable: false,
       sortable: false,
@@ -167,8 +176,8 @@ const BudgetList = () => {
       ),
     },
     {
-      field: 'observations',
-      headerName: t('budgets.observations'),
+      field: "observations",
+      headerName: t("budgets.observations"),
       flex: 5,
       minWidth: 300,
       editable: false,
@@ -177,8 +186,8 @@ const BudgetList = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'expenses',
-      headerName: t('transactions.expense'),
+      field: "expenses",
+      headerName: t("transactions.expense"),
       flex: 1,
       minWidth: 100,
       editable: false,
@@ -187,8 +196,8 @@ const BudgetList = () => {
       renderCell: (params) => <>{formatNumberAsCurrency(params.value)}</>,
     },
     {
-      field: 'income',
-      headerName: t('transactions.income'),
+      field: "income",
+      headerName: t("transactions.income"),
       flex: 1,
       minWidth: 100,
       editable: false,
@@ -196,8 +205,8 @@ const BudgetList = () => {
       renderCell: (params) => <>{formatNumberAsCurrency(params.value)}</>,
     },
     {
-      field: 'balance',
-      headerName: t('budgets.balance'),
+      field: "balance",
+      headerName: t("budgets.balance"),
       flex: 1,
       minWidth: 100,
       editable: false,
@@ -211,24 +220,24 @@ const BudgetList = () => {
           <Stack direction="row" alignItems="center" gap={0.5} mt={0.5}>
             <Chip
               size="small"
-              variant={params.value.highlighted ? 'filled' : 'outlined'}
+              variant={params.value.highlighted ? "filled" : "outlined"}
               color={
                 params.value.highlighted
-                  ? 'default'
+                  ? "default"
                   : getPercentageTextColor(params.value.changePercentage)
               }
               label={formatNumberAsPercentage(
                 params.value.changePercentage,
-                true,
+                true
               )}
               icon={
                 params.value.changePercentage === 0 ||
                 !Number.isFinite(params.value.changePercentage) ? (
                   <></>
                 ) : params.value.changePercentage < 0 ? (
-                  <ArrowOutward sx={{ transform: 'rotate(90deg)' }} />
+                  <ArrowOutward sx={{ transform: "rotate(90deg)" }} />
                 ) : (
-                  <ArrowOutward sx={{ transform: 'rotate(0deg)' }} />
+                  <ArrowOutward sx={{ transform: "rotate(0deg)" }} />
                 )
               }
             />
@@ -237,8 +246,8 @@ const BudgetList = () => {
       ),
     },
     {
-      field: 'savings',
-      headerName: t('budgets.savings'),
+      field: "savings",
+      headerName: t("budgets.savings"),
       flex: 1,
       minWidth: 100,
       editable: false,
@@ -249,7 +258,7 @@ const BudgetList = () => {
           color={getPercentageTextColor(params.value)}
           label={
             params.value == 0
-              ? '-%'
+              ? "-%"
               : formatNumberAsPercentage(params.value, true)
           }
           variant="filled"
@@ -258,8 +267,8 @@ const BudgetList = () => {
       ),
     },
     {
-      field: 'actions',
-      headerName: t('common.actions'),
+      field: "actions",
+      headerName: t("common.actions"),
       minWidth: 100,
       editable: false,
       sortable: false,
@@ -267,7 +276,7 @@ const BudgetList = () => {
       renderCell: (params) => (
         <Stack direction="row" gap={0}>
           <IconButton
-            aria-label={t('common.seeMore')}
+            aria-label={t("common.seeMore")}
             onClick={() => {
               goToBudgetDetails(params.value.budget_id);
             }}
@@ -275,7 +284,7 @@ const BudgetList = () => {
             <Visibility fontSize="medium" color="action" />
           </IconButton>
           <IconButton
-            aria-label={t('common.delete')}
+            aria-label={t("common.delete")}
             onClick={(event) => {
               event.stopPropagation();
               handleRemoveBudgetClick(params.value);
@@ -312,91 +321,124 @@ const BudgetList = () => {
     actions: result,
   }));
 
+  const { startListening, recognizedText } = useSpeech();
+
   return (
-    <Paper elevation={0} sx={{ p: theme.spacing(2), m: theme.spacing(2) }}>
-      {isRemoveDialogOpen && (
-        <GenericConfirmationDialog
-          isOpen={isRemoveDialogOpen}
-          onClose={() => setRemoveDialogOpen(false)}
-          onPositiveClick={() => removeBudget()}
-          onNegativeClick={() => setRemoveDialogOpen(false)}
-          titleText={t('budgets.deleteBudgetModalTitle', {
-            month: actionableBudget?.month,
-            year: actionableBudget?.year,
-          })}
-          descriptionText={t('budgets.deleteBudgetModalSubtitle')}
-          positiveText={t('common.delete')}
-        />
-      )}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <PageHeader
-          title={t('budgets.budgets')}
-          subtitle={t('budgets.strapLine')}
-        />
-      </Box>
-      <Grid container spacing={2}>
-        <Grid sm={8} xs={12} container spacing={2}>
-          <Grid>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddCircleOutline />}
-              onClick={() => {
-                handleAddBudgetClick();
+    <div
+      onMouseDown={(ev) => {
+        if (ev.button == 1) {
+          ev.preventDefault();
+          startListening(async () => {
+            console.log(recognizedText.current);
+            fetch("http://localhost:8000/api/talk", {
+              method: "POST", // Specify GET method
+              headers: {
+                "Content-Type": "application/json", // Optional, for JSON payload
+              },
+              body: JSON.stringify({ message: recognizedText.current }), // Include a body (not typical for GET)
+            }).then(async (res) => {
+              // console.log(res);
+              // console.log(await res.json());
+              let data = await res.json();
+              console.log(data);
+              let func_name = data.command.substring(4);
+              if (data.command.substring(0, 3) == "Nav") {
+                navigate("/" + func_name.toLowerCase());
+              } else {
+                window[func_name]();
+              }
+              console.log(func_name);
+              // console.log(window);
+            });
+          });
+        }
+      }}
+    >
+      <Paper elevation={0} sx={{ p: theme.spacing(2), m: theme.spacing(2) }}>
+        {isRemoveDialogOpen && (
+          <GenericConfirmationDialog
+            isOpen={isRemoveDialogOpen}
+            onClose={() => setRemoveDialogOpen(false)}
+            onPositiveClick={() => removeBudget()}
+            onNegativeClick={() => setRemoveDialogOpen(false)}
+            titleText={t("budgets.deleteBudgetModalTitle", {
+              month: actionableBudget?.month,
+              year: actionableBudget?.year,
+            })}
+            descriptionText={t("budgets.deleteBudgetModalSubtitle")}
+            positiveText={t("common.delete")}
+          />
+        )}
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <PageHeader
+            title={t("budgets.budgets")}
+            subtitle={t("budgets.strapLine")}
+          />
+        </Box>
+        <Grid container spacing={2}>
+          <Grid sm={8} xs={12} container spacing={2}>
+            <Grid>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddCircleOutline />}
+                onClick={() => {
+                  handleAddBudgetClick();
+                }}
+              >
+                {t("budgets.addBudget")}
+              </Button>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showOnlyOpen}
+                      onChange={(_, checked) => setShowOnlyOpen(checked)}
+                    />
+                  }
+                  label={t("budgets.onlyOpened")}
+                />
+              </FormGroup>
+            </Grid>
+          </Grid>
+
+          <Grid
+            sm={12}
+            lg={4}
+            xsOffset="auto"
+            sx={{ display: "flex", justifyContent: "flex-end" }}
+          >
+            {" "}
+            <TextField
+              id="outlined-basic"
+              label={t("common.search")}
+              variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Search />
+                  </InputAdornment>
+                ),
               }}
-            >
-              {t('budgets.addBudget')}
-            </Button>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={showOnlyOpen}
-                    onChange={(_, checked) => setShowOnlyOpen(checked)}
-                  />
-                }
-                label={t('budgets.onlyOpened')}
-              />
-            </FormGroup>
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                debouncedSearchQuery(event.target.value);
+              }}
+            />
+          </Grid>
+          <Grid xs={12}>
+            <MyFinTable
+              isRefetching={getBudgetsRequest.isRefetching}
+              rows={rows}
+              columns={columns}
+              itemCount={getBudgetsRequest.data.filtered_count}
+              paginationModel={paginationModel}
+              setPaginationModel={setPaginationModel}
+              onRowClicked={(id) => goToBudgetDetails(id)}
+            />
           </Grid>
         </Grid>
-
-        <Grid
-          sm={12}
-          lg={4}
-          xsOffset="auto"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
-        >
-          {' '}
-          <TextField
-            id="outlined-basic"
-            label={t('common.search')}
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              debouncedSearchQuery(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid xs={12}>
-          <MyFinTable
-            isRefetching={getBudgetsRequest.isRefetching}
-            rows={rows}
-            columns={columns}
-            itemCount={getBudgetsRequest.data.filtered_count}
-            paginationModel={paginationModel}
-            setPaginationModel={setPaginationModel}
-            onRowClicked={(id) => goToBudgetDetails(id)}
-          />
-        </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
+    </div>
   );
 };
 

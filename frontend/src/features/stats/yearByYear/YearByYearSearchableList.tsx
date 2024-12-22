@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
-import { GridColDef } from '@mui/x-data-grid';
-import { formatNumberAsCurrency } from '../../../utils/textUtils.ts';
-import TextField from '@mui/material/TextField/TextField';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import { Search } from '@mui/icons-material';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import { useTranslation } from 'react-i18next';
-import MyFinStaticTable from '../../../components/MyFinStaticTable.tsx';
-import { Box } from '@mui/material';
+import React, { useCallback, useMemo, useState } from "react";
+import { debounce } from "lodash";
+import { GridColDef } from "@mui/x-data-grid";
+import { formatNumberAsCurrency } from "../../../utils/textUtils.ts";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import { Search } from "@mui/icons-material";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import { useTranslation } from "react-i18next";
+import MyFinStaticTable from "../../../components/MyFinStaticTable.tsx";
+import { Box } from "@mui/material";
 
 type Props = {
   list: YearByYearSearchableListItem[];
@@ -22,12 +22,13 @@ export type YearByYearSearchableListItem = {
 
 const YearByYearSearchableList = (props: Props) => {
   const { t } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  window.debouncedSearchQuery = debouncedSearchQuery;
   const filteredList = useMemo(() => {
     return props.list
       .filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
   }, [props.list, searchQuery]);
@@ -40,8 +41,8 @@ const YearByYearSearchableList = (props: Props) => {
 
   const columns: GridColDef[] = [
     {
-      field: 'name',
-      headerName: t('investments.name'),
+      field: "name",
+      headerName: t("investments.name"),
       minWidth: 50,
       flex: 1,
       editable: false,
@@ -49,12 +50,12 @@ const YearByYearSearchableList = (props: Props) => {
       renderCell: (params) => `${params.value}`,
     },
     {
-      field: 'amount',
-      headerName: t('common.amount'),
+      field: "amount",
+      headerName: t("common.amount"),
       minWidth: 100,
       editable: false,
       sortable: false,
-      align: 'right',
+      align: "right",
       renderCell: (params) => (
         <Box mt={2} mb={2}>
           {formatNumberAsCurrency(params.value)}
@@ -67,7 +68,7 @@ const YearByYearSearchableList = (props: Props) => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       debouncedSearchQuery(event.target.value);
     },
-    [debouncedSearchQuery],
+    [debouncedSearchQuery]
   );
 
   return (
@@ -76,11 +77,11 @@ const YearByYearSearchableList = (props: Props) => {
         xs={12}
         md={6}
         xsOffset="auto"
-        sx={{ display: 'flex', justifyContent: 'flex-end' }}
+        sx={{ display: "flex", justifyContent: "flex-end" }}
       >
         <TextField
           id="search"
-          label={t('common.search')}
+          label={t("common.search")}
           variant="outlined"
           InputProps={{
             endAdornment: (

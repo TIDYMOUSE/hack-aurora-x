@@ -1,36 +1,36 @@
-import { Paper, useTheme } from '@mui/material';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
+import { Paper, useTheme } from "@mui/material";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import { useTranslation } from 'react-i18next';
+} from "../../providers/SnackbarProvider.tsx";
+import { useTranslation } from "react-i18next";
 import {
   useGetCategories,
   useRemoveCategory,
-} from '../../services/category/CategoryHooks.tsx';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+} from "../../services/category/CategoryHooks.tsx";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Category,
   CategoryStatus,
-} from '../../services/category/categoryServices.ts';
-import { debounce } from 'lodash';
-import { GridColDef } from '@mui/x-data-grid';
-import { cssGradients } from '../../utils/gradientUtils.ts';
-import { ColorGradient } from '../../consts';
-import Chip from '@mui/material/Chip/Chip';
-import Stack from '@mui/material/Stack/Stack';
-import IconButton from '@mui/material/IconButton';
-import { AddCircleOutline, Delete, Edit, Search } from '@mui/icons-material';
-import Box from '@mui/material/Box/Box';
-import PageHeader from '../../components/PageHeader.tsx';
-import Button from '@mui/material/Button/Button';
-import TextField from '@mui/material/TextField/TextField';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import GenericConfirmationDialog from '../../components/GenericConfirmationDialog.tsx';
-import AddEditCategoryDialog from '../../services/category/AddEditCategoryDialog.tsx';
-import MyFinStaticTable from '../../components/MyFinStaticTable.tsx';
+} from "../../services/category/categoryServices.ts";
+import { debounce } from "lodash";
+import { GridColDef } from "@mui/x-data-grid";
+import { cssGradients } from "../../utils/gradientUtils.ts";
+import { ColorGradient } from "../../consts";
+import Chip from "@mui/material/Chip/Chip";
+import Stack from "@mui/material/Stack/Stack";
+import IconButton from "@mui/material/IconButton";
+import { AddCircleOutline, Delete, Edit, Search } from "@mui/icons-material";
+import Box from "@mui/material/Box/Box";
+import PageHeader from "../../components/PageHeader.tsx";
+import Button from "@mui/material/Button/Button";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import GenericConfirmationDialog from "../../components/GenericConfirmationDialog.tsx";
+import AddEditCategoryDialog from "../../services/category/AddEditCategoryDialog.tsx";
+import MyFinStaticTable from "../../components/MyFinStaticTable.tsx";
 
 const Categories = () => {
   const theme = useTheme();
@@ -42,22 +42,21 @@ const Categories = () => {
   const removeCategoryRequest = useRemoveCategory();
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [actionableCategory, setActionableCategory] = useState<Category | null>(
-    null,
+    null
   );
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isAddEditDialogOpen, setAddEditDialogOpen] = useState(false);
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-
+  window.debouncedSearchQuery = debouncedSearchQuery;
   const filteredCategories = useMemo(() => {
     let filteredList = categories;
 
     if (searchQuery != null) {
-      const lowerCaseQuery = searchQuery?.toLowerCase() || '';
+      const lowerCaseQuery = searchQuery?.toLowerCase() || "";
       filteredList = categories.filter(
-        (cat) =>
-          !searchQuery || cat.name.toLowerCase().includes(lowerCaseQuery),
+        (cat) => !searchQuery || cat.name.toLowerCase().includes(lowerCaseQuery)
       );
     }
 
@@ -77,8 +76,8 @@ const Categories = () => {
   useEffect(() => {
     if (getCategoriesRequest.isError || removeCategoryRequest.isError) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [getCategoriesRequest.isError, removeCategoryRequest.isError]);
@@ -111,13 +110,13 @@ const Categories = () => {
         status: category.status,
         actions: category,
       })),
-    [filteredCategories],
+    [filteredCategories]
   );
 
   const columns: GridColDef[] = [
     {
-      field: 'color',
-      headerName: t('categories.color'),
+      field: "color",
+      headerName: t("categories.color"),
       minWidth: 40,
       editable: false,
       sortable: false,
@@ -125,7 +124,7 @@ const Categories = () => {
         <div
           style={{
             margin: 10,
-            background: cssGradients[params.value as ColorGradient] ?? '',
+            background: cssGradients[params.value as ColorGradient] ?? "",
             width: 30,
             height: 30,
             borderRadius: 20,
@@ -134,8 +133,8 @@ const Categories = () => {
       ),
     },
     {
-      field: 'name',
-      headerName: t('categories.name'),
+      field: "name",
+      headerName: t("categories.name"),
       flex: 1.5,
       minWidth: 200,
       editable: false,
@@ -143,8 +142,8 @@ const Categories = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'description',
-      headerName: t('common.description'),
+      field: "description",
+      headerName: t("common.description"),
       flex: 5,
       minWidth: 300,
       editable: false,
@@ -152,8 +151,8 @@ const Categories = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'status',
-      headerName: t('categories.status'),
+      field: "status",
+      headerName: t("categories.status"),
       minWidth: 100,
       editable: false,
       sortable: false,
@@ -163,22 +162,22 @@ const Categories = () => {
           variant="outlined"
           color={
             params.value.startsWith(CategoryStatus.Active)
-              ? 'success'
-              : 'warning'
+              ? "success"
+              : "warning"
           }
         />
       ),
     },
     {
-      field: 'actions',
-      headerName: t('common.actions'),
+      field: "actions",
+      headerName: t("common.actions"),
       minWidth: 100,
       editable: false,
       sortable: false,
       renderCell: (params) => (
         <Stack direction="row" gap={0}>
           <IconButton
-            aria-label={t('common.edit')}
+            aria-label={t("common.edit")}
             onClick={() => {
               handleEditButtonClick(params.value);
             }}
@@ -186,7 +185,7 @@ const Categories = () => {
             <Edit fontSize="medium" color="action" />
           </IconButton>
           <IconButton
-            aria-label={t('common.delete')}
+            aria-label={t("common.delete")}
             onClick={(event) => {
               event.stopPropagation();
               setActionableCategory(params.value);
@@ -210,7 +209,7 @@ const Categories = () => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       debouncedSearchQuery(event.target.value);
     },
-    [debouncedSearchQuery],
+    [debouncedSearchQuery]
   );
 
   return (
@@ -230,17 +229,17 @@ const Categories = () => {
           onClose={() => setRemoveDialogOpen(false)}
           onPositiveClick={() => removeCategory()}
           onNegativeClick={() => setRemoveDialogOpen(false)}
-          titleText={t('categories.deleteCategoryModalTitle', {
+          titleText={t("categories.deleteCategoryModalTitle", {
             name: actionableCategory?.name,
           })}
-          descriptionText={t('categories.deleteCategoryModalSubtitle')}
-          positiveText={t('common.delete')}
+          descriptionText={t("categories.deleteCategoryModalSubtitle")}
+          positiveText={t("common.delete")}
         />
       )}
       <Box display="flex" justifyContent="space-between" flexDirection="column">
         <PageHeader
-          title={t('categories.categories')}
-          subtitle={t('categories.strapLine')}
+          title={t("categories.categories")}
+          subtitle={t("categories.strapLine")}
         />
       </Box>
       <Grid container spacing={2}>
@@ -254,18 +253,18 @@ const Categories = () => {
               setAddEditDialogOpen(true);
             }}
           >
-            {t('categories.addCategoryCTA')}
+            {t("categories.addCategoryCTA")}
           </Button>
         </Grid>
         <Grid
           xs={12}
           md={4}
           xsOffset="auto"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: "flex", justifyContent: "flex-end" }}
         >
           <TextField
             id="search"
-            label={t('common.search')}
+            label={t("common.search")}
             variant="outlined"
             InputProps={{
               endAdornment: (

@@ -1,30 +1,30 @@
-import { Paper, useTheme } from '@mui/material';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
+import { Paper, useTheme } from "@mui/material";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import { useTranslation } from 'react-i18next';
+} from "../../providers/SnackbarProvider.tsx";
+import { useTranslation } from "react-i18next";
 import {
   useGetEntities,
   useRemoveEntity,
-} from '../../services/entity/entityHooks.ts';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
-import { Entity } from '../../services/trx/trxServices.ts';
-import { GridColDef } from '@mui/x-data-grid';
-import Stack from '@mui/material/Stack/Stack';
-import IconButton from '@mui/material/IconButton';
-import { AddCircleOutline, Delete, Edit, Search } from '@mui/icons-material';
-import GenericConfirmationDialog from '../../components/GenericConfirmationDialog.tsx';
-import Box from '@mui/material/Box/Box';
-import PageHeader from '../../components/PageHeader.tsx';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import Button from '@mui/material/Button/Button';
-import TextField from '@mui/material/TextField/TextField';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import AddEditEntityDialog from './AddEditEntityDialog.tsx';
-import MyFinStaticTable from '../../components/MyFinStaticTable.tsx';
+} from "../../services/entity/entityHooks.ts";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { debounce } from "lodash";
+import { Entity } from "../../services/trx/trxServices.ts";
+import { GridColDef } from "@mui/x-data-grid";
+import Stack from "@mui/material/Stack/Stack";
+import IconButton from "@mui/material/IconButton";
+import { AddCircleOutline, Delete, Edit, Search } from "@mui/icons-material";
+import GenericConfirmationDialog from "../../components/GenericConfirmationDialog.tsx";
+import Box from "@mui/material/Box/Box";
+import PageHeader from "../../components/PageHeader.tsx";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import Button from "@mui/material/Button/Button";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import AddEditEntityDialog from "./AddEditEntityDialog.tsx";
+import MyFinStaticTable from "../../components/MyFinStaticTable.tsx";
 
 const Entities = () => {
   const theme = useTheme();
@@ -36,20 +36,21 @@ const Entities = () => {
   const removeEntityRequest = useRemoveEntity();
 
   const [entities, setEntities] = useState<Entity[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [actionableEntity, setActionableEntity] = useState<Entity | null>(null);
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isAddEditDialogOpen, setAddEditDialogOpen] = useState(false);
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
+  window.debouncedSearchQuery = debouncedSearchQuery;
+
   const filteredEntities = useMemo(() => {
     let filteredList = entities;
 
     if (searchQuery != null) {
-      const lowerCaseQuery = searchQuery?.toLowerCase() || '';
+      const lowerCaseQuery = searchQuery?.toLowerCase() || "";
       filteredList = entities.filter(
-        (cat) =>
-          !searchQuery || cat.name.toLowerCase().includes(lowerCaseQuery),
+        (cat) => !searchQuery || cat.name.toLowerCase().includes(lowerCaseQuery)
       );
     }
 
@@ -69,8 +70,8 @@ const Entities = () => {
   useEffect(() => {
     if (getEntitiesRequest.isError || removeEntityRequest.isError) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [getEntitiesRequest.isError, removeEntityRequest.isError]);
@@ -100,13 +101,13 @@ const Entities = () => {
         name: entity.name,
         actions: entity,
       })),
-    [filteredEntities],
+    [filteredEntities]
   );
 
   const columns: GridColDef[] = [
     {
-      field: 'name',
-      headerName: t('entities.name'),
+      field: "name",
+      headerName: t("entities.name"),
       minWidth: 200,
       flex: 1,
       editable: false,
@@ -114,15 +115,15 @@ const Entities = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'actions',
-      headerName: t('common.actions'),
+      field: "actions",
+      headerName: t("common.actions"),
       minWidth: 100,
       editable: false,
       sortable: false,
       renderCell: (params) => (
         <Stack direction="row" gap={0}>
           <IconButton
-            aria-label={t('common.edit')}
+            aria-label={t("common.edit")}
             onClick={() => {
               handleEditButtonClick(params.value);
             }}
@@ -130,7 +131,7 @@ const Entities = () => {
             <Edit fontSize="medium" color="action" />
           </IconButton>
           <IconButton
-            aria-label={t('common.delete')}
+            aria-label={t("common.delete")}
             onClick={(event) => {
               event.stopPropagation();
               setActionableEntity(params.value);
@@ -154,7 +155,7 @@ const Entities = () => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       debouncedSearchQuery(event.target.value);
     },
-    [debouncedSearchQuery],
+    [debouncedSearchQuery]
   );
 
   return (
@@ -174,17 +175,17 @@ const Entities = () => {
           onClose={() => setRemoveDialogOpen(false)}
           onPositiveClick={() => removeEntity()}
           onNegativeClick={() => setRemoveDialogOpen(false)}
-          titleText={t('entities.deleteEntityModalTitle', {
+          titleText={t("entities.deleteEntityModalTitle", {
             name: actionableEntity?.name,
           })}
-          descriptionText={t('entities.deleteEntityModalSubtitle')}
-          positiveText={t('common.delete')}
+          descriptionText={t("entities.deleteEntityModalSubtitle")}
+          positiveText={t("common.delete")}
         />
       )}
       <Box display="flex" justifyContent="space-between" flexDirection="column">
         <PageHeader
-          title={t('entities.entities')}
-          subtitle={t('entities.strapLine')}
+          title={t("entities.entities")}
+          subtitle={t("entities.strapLine")}
         />
       </Box>
       <Grid container spacing={2}>
@@ -198,18 +199,18 @@ const Entities = () => {
               setAddEditDialogOpen(true);
             }}
           >
-            {t('entities.addEntityCTA')}
+            {t("entities.addEntityCTA")}
           </Button>
         </Grid>
         <Grid
           xs={12}
           md={4}
           xsOffset="auto"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: "flex", justifyContent: "flex-end" }}
         >
           <TextField
             id="search"
-            label={t('common.search')}
+            label={t("common.search")}
             variant="outlined"
             InputProps={{
               endAdornment: (

@@ -1,27 +1,27 @@
-import { Paper, useTheme } from '@mui/material';
-import { useLoading } from '../../providers/LoadingProvider.tsx';
+import { Paper, useTheme } from "@mui/material";
+import { useLoading } from "../../providers/LoadingProvider.tsx";
 import {
   AlertSeverity,
   useSnackbar,
-} from '../../providers/SnackbarProvider.tsx';
-import { useTranslation } from 'react-i18next';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Tag } from '../../services/trx/trxServices.ts';
-import { useGetTags, useRemoveTag } from '../../services/tag/tagHooks.ts';
-import { GridColDef } from '@mui/x-data-grid';
-import Stack from '@mui/material/Stack/Stack';
-import IconButton from '@mui/material/IconButton';
-import { AddCircleOutline, Delete, Edit, Search } from '@mui/icons-material';
-import GenericConfirmationDialog from '../../components/GenericConfirmationDialog.tsx';
-import Box from '@mui/material/Box/Box';
-import PageHeader from '../../components/PageHeader.tsx';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
-import Button from '@mui/material/Button/Button';
-import TextField from '@mui/material/TextField/TextField';
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
-import { debounce } from 'lodash';
-import MyFinTable from '../../components/MyFinTable.tsx';
-import AddEditTagDialog from './AddEditTagDialog.tsx';
+} from "../../providers/SnackbarProvider.tsx";
+import { useTranslation } from "react-i18next";
+import React, { useEffect, useMemo, useState } from "react";
+import { Tag } from "../../services/trx/trxServices.ts";
+import { useGetTags, useRemoveTag } from "../../services/tag/tagHooks.ts";
+import { GridColDef } from "@mui/x-data-grid";
+import Stack from "@mui/material/Stack/Stack";
+import IconButton from "@mui/material/IconButton";
+import { AddCircleOutline, Delete, Edit, Search } from "@mui/icons-material";
+import GenericConfirmationDialog from "../../components/GenericConfirmationDialog.tsx";
+import Box from "@mui/material/Box/Box";
+import PageHeader from "../../components/PageHeader.tsx";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import Button from "@mui/material/Button/Button";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
+import { debounce } from "lodash";
+import MyFinTable from "../../components/MyFinTable.tsx";
+import AddEditTagDialog from "./AddEditTagDialog.tsx";
 
 const Tags = () => {
   const theme = useTheme();
@@ -35,17 +35,17 @@ const Tags = () => {
   const [actionableTag, setActionableTag] = useState<Tag | null>(null);
   const [isRemoveDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isAddEditDialogOpen, setEditDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const debouncedSearchQuery = useMemo(
+  window.debouncedSearchQuery = useMemo(
     () => debounce((query) => setSearchQuery(query), 300),
-    [],
+    []
   );
 
   const getTagsRequest = useGetTags(
     paginationModel.page,
     paginationModel.pageSize,
-    searchQuery,
+    searchQuery
   );
   const removeTagRequest = useRemoveTag();
 
@@ -62,8 +62,8 @@ const Tags = () => {
   useEffect(() => {
     if (getTagsRequest.isError || removeTagRequest.isError) {
       snackbar.showSnackbar(
-        t('common.somethingWentWrongTryAgain'),
-        AlertSeverity.ERROR,
+        t("common.somethingWentWrongTryAgain"),
+        AlertSeverity.ERROR
       );
     }
   }, [getTagsRequest.isError, removeTagRequest.isError]);
@@ -107,8 +107,8 @@ const Tags = () => {
 
   const columns: GridColDef[] = [
     {
-      field: 'name',
-      headerName: t('tags.name'),
+      field: "name",
+      headerName: t("tags.name"),
       minWidth: 200,
       flex: 1,
       editable: false,
@@ -116,8 +116,8 @@ const Tags = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'description',
-      headerName: t('tags.description'),
+      field: "description",
+      headerName: t("tags.description"),
       minWidth: 400,
       flex: 3,
       editable: false,
@@ -125,21 +125,21 @@ const Tags = () => {
       renderCell: (params) => <p>{params.value}</p>,
     },
     {
-      field: 'actions',
-      headerName: t('common.actions'),
+      field: "actions",
+      headerName: t("common.actions"),
       minWidth: 100,
       editable: false,
       sortable: false,
       renderCell: (params) => (
         <Stack direction="row" gap={0}>
           <IconButton
-            aria-label={t('common.edit')}
+            aria-label={t("common.edit")}
             onClick={() => handleEditTagClick(params.value)}
           >
             <Edit fontSize="medium" color="action" />
           </IconButton>
           <IconButton
-            aria-label={t('common.delete')}
+            aria-label={t("common.delete")}
             onClick={(event) => {
               event.stopPropagation();
               handleRemoveTagClick(params.value);
@@ -169,15 +169,15 @@ const Tags = () => {
           onClose={() => setRemoveDialogOpen(false)}
           onPositiveClick={removeTag}
           onNegativeClick={() => setRemoveDialogOpen(false)}
-          titleText={t('tags.deleteTagModalTitle', {
+          titleText={t("tags.deleteTagModalTitle", {
             id: actionableTag?.tag_id,
           })}
-          descriptionText={t('tags.deleteTagModalSubtitle')}
-          positiveText={t('common.delete')}
+          descriptionText={t("tags.deleteTagModalSubtitle")}
+          positiveText={t("common.delete")}
         />
       )}
       <Box display="flex" justifyContent="space-between" flexDirection="column">
-        <PageHeader title={t('tags.tags')} subtitle={t('tags.strapLine')} />
+        <PageHeader title={t("tags.tags")} subtitle={t("tags.strapLine")} />
       </Box>
       <Grid container spacing={2}>
         <Grid xs={12} md={8}>
@@ -188,18 +188,18 @@ const Tags = () => {
             startIcon={<AddCircleOutline />}
             onClick={handleAddTagClick}
           >
-            {t('tags.addTagCTA')}
+            {t("tags.addTagCTA")}
           </Button>
         </Grid>
         <Grid
           xs={12}
           md={4}
           xsOffset="auto"
-          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+          sx={{ display: "flex", justifyContent: "flex-end" }}
         >
           <TextField
             id="search"
-            label={t('common.search')}
+            label={t("common.search")}
             variant="outlined"
             InputProps={{
               endAdornment: (
@@ -223,7 +223,7 @@ const Tags = () => {
             setPaginationModel={setPaginationModel}
             onRowClicked={(id) => {
               const tag = getTagsRequest.data.results.find(
-                (tag) => tag.tag_id == id,
+                (tag) => tag.tag_id == id
               );
               if (!tag) return;
               handleEditTagClick(tag);
