@@ -369,7 +369,15 @@ const Transactions = () => {
               let func_name = data.command.substring(4);
               if (data.command.substring(0, 3) == "Nav") {
                 navigate("/" + func_name.toLowerCase());
-              } else {
+              } 
+              else if (func_name.includes(";")){ 
+                
+                let [functionName, arg] = func_name.split(";").map((part:string) => part.trim()); 
+                console.log("Extracted function name:", functionName);
+                console.log("Extracted argument:", arg);
+                window[functionName](arg); 
+              }
+              else {
                 window[func_name]();
               }
               console.log(func_name);
