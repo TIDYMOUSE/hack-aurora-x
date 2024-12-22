@@ -1,20 +1,21 @@
 export const formatStringAsCurrency = (
   text: string,
-  currency: string = 'EUR',
+  currency: string = 'INR', // Default to INR
 ) => {
   return formatNumberAsCurrency(parseFloat(text), currency);
 };
 
 export const formatNumberAsCurrency = (
   text: number,
-  currency: string = 'EUR',
+  currency: string = 'INR', // Default to INR
 ) => {
-  const formatter = Intl.NumberFormat('en', {
+  const formatter = Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,
   });
   return formatter.format(text);
 };
+
 
 export const isNumber = (value: unknown) => {
   return typeof value === 'number';

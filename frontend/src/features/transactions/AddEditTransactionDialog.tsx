@@ -31,7 +31,7 @@ import {
   CallMerge,
   CallSplit,
   Description,
-  Euro,
+  CurrencyRupee,
   FolderShared,
   Send,
   Star,
@@ -598,7 +598,7 @@ const AddEditTransactionDialog = (props: Props) => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Euro />
+                      <CurrencyRupee />
                     </InputAdornment>
                   ),
                 }}
@@ -1027,7 +1027,7 @@ const SplitTransactionForm = ({
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Euro />
+                    <CurrencyRupee />
                   </InputAdornment>
                 ),
               }}
